@@ -27,19 +27,25 @@ public class registrationImpl implements registration {
 
         String firstName = "", lastName = "", email = "", password = "";
         try {
-            System.out.print("Enter your full name");
+            System.out.print("Enter your full name: ");
             String name = scanner.nextLine();
             if (name.contains(" ")) {
                 firstName = name.substring(0, name.indexOf(" "));
                 name = name.substring(name.indexOf(" "));
                 lastName = name.trim();
             }
+            else {
+                firstName = name;
+                lastName = " ";
+            }
             boolean userExists = true;
             while (userExists) {
                 System.out.print("Enter your email address: ");
                 email = scanner.next();
                 userExists = findByEmail(email) != null;
-                System.out.println("This email has already been taken by some other user. Please use a different email address.");
+                if(userExists){
+                    System.out.println("This email has already been taken by some other user. Please use a different email address.");
+                }
             }
 
             System.out.print("Enter your password: ");
@@ -79,31 +85,34 @@ public class registrationImpl implements registration {
         scanner = new Scanner(System.in);
         String email = "", password = "";
         int counter = 5;
-        try {
-            System.out.print("Enter your email address: ");
-            email = scanner.next();
+        boolean loginSuccess = false;
+        while (loginSuccess == false && --counter > 0) {
+            try {
+                System.out.print("Enter your email address: ");
+                email = scanner.next();
 
-            System.out.print("Enter your password: ");
-            password = scanner.next();
+                System.out.print("Enter your password: ");
+                password = scanner.next();
 
-            User user = findByEmailAndPassword(email, password);
-            if(user != null){
-                System.out.println("Welcome, " + user.getFirstName() + "!");
-                main.currentUser = user;
-                return true;
-            }else {
-                if(findByEmail(email) == null){
-                    System.out.println("User with the given email was not found in the database.");
+                User user = findByEmailAndPassword(email, password);
+                if (user != null) {
+                    System.out.println("Welcome, " + user.getFirstName() + "!");
+                    main.currentUser = user;
+                    loginSuccess = true;
+                    return true;
+                } else {
+                    if (findByEmail(email) == null) {
+                        System.out.println("User with the given email was not found in the database.");
+                    } else {
+                        System.out.println("Please, check your password, and try again!");
+                    }
                 }
-                else {
-                    System.out.println("Please, check your password, and try again!");
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        System.out.println("You have used 5 consecutive attempts to sign-in without success. Please, check your registration credentials and come back again!");
+
         return false;
 
 
