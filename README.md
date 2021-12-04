@@ -26,21 +26,25 @@ UserTestSolveHistory classlarini OOP conception laridan foydalangan holatda (Enc
    - Balance ga pul qoshish. Bunda Abiturientga to’lov turini tanlash imkoni berilsin.
 
 
-## STATUS CHECK
+## PROGRESS CHECK
 
 - [x] 1) Class creation
 
 - [ ] 2) Services:
 
-    - [x] Registration
+    - [x] Registration service
     
     - [x] Continuous service (while loop, sign in, user verification)
     
-    - [x] subjectService
+    - [x] Subject service
     
-    - [ ] testService
+    - [ ] Test service
     
-    - [ ] paymentService
+    - [ ] Payment service
     
-    - [ ] others
-
+    - [ ] Others
+  
+- [ ] 3) Database integration
+    - [ ] Local (txt file)
+    - [ ] SQL
+    

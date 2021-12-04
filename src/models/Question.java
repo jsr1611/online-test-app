@@ -3,20 +3,28 @@ package models;
 public class Question {
     private Long id;
     private String question;
-    private String A;
-    private String B;
-    private String C;
+    private Answer A;
+    private Answer B;
+    private Answer C;
     private Answer answer;
     private Integer point; // mark
 
-    public Question(Long id, String question, String a, String b, String c, Answer answer, Integer point) {
+    public Question(Long id, String question, Answer a, Answer b, Answer c, Integer point) {
         this.id = id;
         this.question = question;
         A = a;
         B = b;
         C = c;
-        this.answer = answer;
         this.point = point;
+        if(A.isCorrect()){
+            answer = A;
+        }
+        else if(B.isCorrect()){
+            answer = B;
+        }
+        else {
+            answer = C;
+        }
     }
 
     public Long getId() {
@@ -35,27 +43,27 @@ public class Question {
         this.question = question;
     }
 
-    public String getA() {
+    public Answer getA() {
         return A;
     }
 
-    public void setA(String a) {
+    public void setA(Answer a) {
         A = a;
     }
 
-    public String getB() {
+    public Answer getB() {
         return B;
     }
 
-    public void setB(String b) {
+    public void setB(Answer b) {
         B = b;
     }
 
-    public String getC() {
+    public Answer getC() {
         return C;
     }
 
-    public void setC(String c) {
+    public void setC(Answer c) {
         C = c;
     }
 
