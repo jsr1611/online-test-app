@@ -79,7 +79,28 @@ public class main {
 
     private static void adminMenu(){
         // TODO: 12/4/21 admin panel
-        System.out.println("Not implemented yet - admin");
+        scanner = new Scanner(System.in);
+        int choice = -1;
+        while (currentUser.getSignedIn()){
+            System.out.println("ADMIN PANEL");
+            System.out.println("1. Display subjects");
+            System.out.println("2. Subject Services");
+            System.out.println("3. Payment Services");
+            System.out.println("4. User Balance History");
+            System.out.println("0. SignOut");
+
+            try {
+                choice = scanner.nextInt();
+                if (choice == 0) {
+                    currentUser.setSignedIn(false);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+
+
 
     }
 
