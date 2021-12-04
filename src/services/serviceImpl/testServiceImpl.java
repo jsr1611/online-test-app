@@ -2,7 +2,9 @@ package services.serviceImpl;
 
 import models.Answer;
 import models.Question;
+import models.Subject;
 import models.Test;
+import realization.main;
 import services.testService;
 
 import java.util.ArrayList;
@@ -33,10 +35,34 @@ public class testServiceImpl implements testService {
                 String questionText = "";
                 System.out.println("Question text: ");
                 questionText = scanner.nextLine();
-                answer1 = addAnswer(answer1.getId());
-                answer2 = addAnswer(answer2.getId());
-                answer3 = addAnswer(answer3.getId());
-
+                boolean questionComplete = false;
+                while (!questionComplete){
+                    int counter = 0;
+                    System.out.println(questionText);
+                    answer1 = addAnswer(answer1.getId());
+                    answer2 = addAnswer(answer2.getId());
+                    answer3 = addAnswer(answer3.getId());
+                    Answer[] answers = {answer1, answer2, answer3};
+                    for (Answer answer : answers) {
+                        if(answer.isCorrect()){
+                            counter++;
+                        }
+                    }
+                    if(counter == 1){
+                        questionComplete = true;
+                    }
+                    else {
+                        if(counter > 1){
+                            System.out.println("There shouldn't be more than one correct answer. Please enter answers from the beginning!");
+                        }
+                        else {
+                            System.out.println("Something went wrong! Check answers below: ");
+                            System.out.println(answer1);
+                            System.out.println(answer2);
+                            System.out.println(answer3);
+                        }
+                    }
+                }
                 Question question = new Question(1L,
                         questionText,
                         answer1,
@@ -72,12 +98,37 @@ public class testServiceImpl implements testService {
     }
 
     @Override
-    public boolean updateTest(Long id) {
-        return false;
+    public boolean updateTest(Long id, Long subjectId) {
+        for (Subject subject : main.subjects) {
+            if(subject.getId().equals(subjectId)){
+                for (Test test : subject.getTestList()) {
+                    if(test.getId().equals(id)){
+                        System.out.println(test);
+                        // TODO: 12/5/21 edit what? logic insertion is required
+                        System.out.println("The test above was successfully updated!");
+                        return true;
+                    }
+                }
+
+            }
+        }
+    return false;
     }
 
     @Override
-    public boolean deleteTest(Long id) {
+    public boolean deleteTest(Long id, Long subjectId) {
+        for (Subject subject : main.subjects) {
+            if(subject.getId().equals(subjectId)){
+                for (Test test : subject.getTestList()) {
+                    if(test.getId().equals(id)){
+                        subject.getTestList().remove(test);
+                        System.out.println(test);
+                        System.out.println("The test above was successfully deleted!");
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 }

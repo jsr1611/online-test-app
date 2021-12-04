@@ -46,6 +46,7 @@ public class subjectServiceImpl implements subjectService {
                 subject.setName(newName);
                 List<Test> testList = AddTestLoop();
                 subject.setTestList(testList);
+                System.out.println("Subject was successfully updated!");
                 return true;
             }
         }

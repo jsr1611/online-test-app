@@ -82,4 +82,15 @@ public class Question {
     public void setPoint(Integer point) {
         this.point = point;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%1$-5s", id) +
+                String.format("%1$-20s",question) +
+                String.format("%1$-20s", A) +
+                String.format("%1$-20s", B) +
+                String.format("%1$-20s", C) +
+                String.format("%1$-20s", answer) +
+                String.format("%1$-10s", point);
+    }
 }

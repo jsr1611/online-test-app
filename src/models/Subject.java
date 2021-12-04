@@ -56,4 +56,13 @@ public class Subject {
     public void setUserPoints(Integer userPoints) {
         this.userPoints = userPoints;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%1$-5s", id) +
+                String.format("%1$-15s", name) +
+                String.format("%1$-10s", testList.size()) +
+                String.format("%1$-15s", totalPoints) +
+                String.format("%1$-15s", userPoints);
+    }
 }

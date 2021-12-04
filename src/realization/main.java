@@ -103,6 +103,7 @@ public class main {
             System.out.println("3. Payment Services");
             System.out.println("4. User Balance History");
             System.out.println("0. SignOut\n");
+            System.out.print("Menu: ");
             try {
                 choice = scanner.nextInt();
                 switch (choice){
@@ -136,6 +137,11 @@ public class main {
 
     private static void displaySubjects() {
         System.out.println("All Subjects");
+        System.out.println(String.format("%1$-5s", "Id") +
+                String.format("%1$-15s", "Name") +
+                String.format("%1$-15s", "Tests") +
+                String.format("%1$-15s", "Total Points") +
+                String.format("%1$-15s", "User Points"));
         for (Subject subject : main.subjects) {
             System.out.println(subject);
         }
@@ -199,15 +205,15 @@ public class main {
      */
     private static void showSubjectsMenu() {
         scanner = new Scanner(System.in);
-        System.out.println("\nSubject Service Menu");
-        System.out.println("1. Add subject");
-        System.out.println("2. Edit subject");
-        System.out.println("3. Delete subject");
-        System.out.println("0. Return back\n");
-        System.out.print("Menu: ");
         int choice = -1;
         boolean stayHere = true;
         while (stayHere) {
+            System.out.println("\nSubject Service Menu");
+            System.out.println("1. Add subject");
+            System.out.println("2. Edit subject");
+            System.out.println("3. Delete subject");
+            System.out.println("0. Return back\n");
+            System.out.print("Menu: ");
             try {
                 choice = scanner.nextInt();
                 switch (choice) {

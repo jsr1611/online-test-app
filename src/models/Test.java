@@ -46,4 +46,18 @@ public class Test {
     public void setUserPoints(Integer userPoints) {
         this.userPoints = userPoints;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder questionsStr = new StringBuilder();
+        for (Question question : questions) {
+            questionsStr.append("QUESTIONS\n").append(question).append("\n");
+        }
+        return String.format("%1$-5s", id) +
+                String.format("%1$-20s", questions.size()) +
+                String.format("%1$-15s",totalPoints) +
+                String.format("%1$-15s",userPoints) + "\n" +
+                questionsStr.toString();
+
+    }
 }

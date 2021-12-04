@@ -34,4 +34,11 @@ public class Answer {
     public void setAsCorrect(Boolean correct) {
         this.correct = correct;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%1$-5s", id) +
+                String.format("%1$-20s", answer) +
+                String.format("%1$-5s", isCorrect());
+    }
 }
