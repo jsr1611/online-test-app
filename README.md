@@ -38,7 +38,7 @@ UserTestSolveHistory classlarini OOP conception laridan foydalangan holatda (Enc
     
     - [x] Subject service
     
-    - [ ] Test service
+    - [x] Test service
     
     - [ ] Payment service
     
