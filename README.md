@@ -28,12 +28,19 @@ UserTestSolveHistory classlarini OOP conception laridan foydalangan holatda (Enc
 
 ## STATUS CHECK
 
-[x] 1) Class creation
-[ ] 2) Services:
-    [x] Registration
-    [x] Continuous service (while loop, sign in, user verification)
-    [x] subjectService
-    [ ] testService
-    [ ] paymentService
-    [ ] others
+- [x] 1) Class creation
+
+- [ ] 2) Services:
+
+    - [x] Registration
+    
+    - [x] Continuous service (while loop, sign in, user verification)
+    
+    - [x] subjectService
+    
+    - [ ] testService
+    
+    - [ ] paymentService
+    
+    - [ ] others
 
