@@ -2,13 +2,15 @@ package models;
 
 import enums.PaymentType;
 
+import java.time.LocalDate;
+
 public class PaymentMethod {
     private Long id;
     private PaymentType name;
     private Account account;
-    private String dateAdded;
+    private LocalDate dateAdded;
 
-    public PaymentMethod(Long id, PaymentType name, Account account, String dateAdded) {
+    public PaymentMethod(Long id, PaymentType name, Account account, LocalDate dateAdded) {
         this.id = id;
         this.name = name;
         this.account = account;
@@ -39,11 +41,11 @@ public class PaymentMethod {
         this.account = account;
     }
 
-    public String getDateAdded() {
+    public LocalDate getDateAdded() {
         return dateAdded;
     }
 
-    public void setDateAdded(String dateAdded) {
+    public void setDateAdded(LocalDate dateAdded) {
         this.dateAdded = dateAdded;
     }
 }

@@ -2,14 +2,16 @@ package models;
 
 import enums.PaymentType;
 
+import java.time.LocalDate;
+
 public class FillBalanceHistory {
     private Long id;
-    private String date;
+    private LocalDate date;
     private Double amount;
     private Double totalAmount;
     private PaymentType paymentType;
 
-    public FillBalanceHistory(Long id, String date, Double amount, Double totalAmount, PaymentType paymentMethod) {
+    public FillBalanceHistory(Long id, LocalDate date, Double amount, Double totalAmount, PaymentType paymentMethod) {
         this.id = id;
         this.date = date;
         this.amount = amount;
@@ -25,11 +27,11 @@ public class FillBalanceHistory {
         this.id = id;
     }
 
-    public String getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
