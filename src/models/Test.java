@@ -2,17 +2,15 @@ package models;
 
 import java.util.List;
 
-public class Subject {
+public class Test {
     private Long id;
-    private String name;
-    private List<Test> testList;
-    private Integer totalPoints; // mark
+    private List<Question> questions;
+    private Integer totalPoints;
     private Integer userPoints;
 
-    public Subject(Long id, String name, List<Test> testList, Integer totalPoints, Integer userPoints) {
+    public Test(Long id, List<Question> questions, Integer totalPoints, Integer userPoints) {
         this.id = id;
-        this.name = name;
-        this.testList = testList;
+        this.questions = questions;
         this.totalPoints = totalPoints;
         this.userPoints = userPoints;
     }
@@ -25,20 +23,12 @@ public class Subject {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public List<Question> getQuestions() {
+        return questions;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<Test> getTestList() {
-        return testList;
-    }
-
-    public void setTestList(List<Test> testList) {
-        this.testList = testList;
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
     }
 
     public Integer getTotalPoints() {
