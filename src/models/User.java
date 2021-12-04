@@ -9,6 +9,7 @@ public class User {
     private String email;
     private String password;
     private Role role;
+    private Boolean signedIn;
 
     public User(Long id, String firstName, String lastName, String email, String password, Role role) {
         this.id = id;
@@ -17,6 +18,7 @@ public class User {
         this.email = email;
         this.password = password;
         this.role = role;
+        this.signedIn = false;
     }
 
     public Long getId() {
@@ -67,5 +69,11 @@ public class User {
         this.role = role;
     }
 
+    public Boolean getSignedIn() {
+        return signedIn;
+    }
 
+    public void setSignedIn(Boolean signedIn) {
+        this.signedIn = signedIn;
+    }
 }
