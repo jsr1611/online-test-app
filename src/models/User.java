@@ -8,16 +8,19 @@ public class User {
     private String lastName;
     private String email;
     private String password;
+    private Account account;
+    private PaymentMethod paymentMethod;
     private Role role;
     private Boolean signedIn;
 
-    public User(Long id, String firstName, String lastName, String email, String password, Role role) {
+    public User(Long id, String firstName, String lastName, String email, String password, Role role, Account account) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.account = account;
         this.signedIn = false;
     }
 
@@ -69,11 +72,40 @@ public class User {
         this.role = role;
     }
 
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
     public Boolean getSignedIn() {
         return signedIn;
     }
 
     public void setSignedIn(Boolean signedIn) {
         this.signedIn = signedIn;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%1$-5s",id) +
+                String.format("%1$-10s",firstName)+
+                String.format("%1$-10s",lastName) +
+                String.format("%1$-15s",email) +
+                String.format("%1$-10s",password) +
+                String.format("%1$-10s",account.getAccountNumber())+
+                String.format("%1$-15s", account.getBalance())+
+                String.format("%1$-15s",role) +
+                String.format("%1$-5s",signedIn);
     }
 }

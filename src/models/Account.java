@@ -4,18 +4,16 @@ import java.util.List;
 
 public class Account {
     private Long id;
-    private Integer accountNumber;
+    private Long accountNumber;
     private Integer password;
     private Double balance;
-    private User user;
     private boolean isActive;
 
-    public Account(Long id, Integer accountNumber, Integer password, Double balance, User user, boolean isActive) {
+    public Account(Long id, Long accountNumber, Integer password, Double balance, boolean isActive) {
         this.id = id;
         this.accountNumber = accountNumber;
         this.password = password;
         this.balance = balance;
-        this.user = user;
         this.isActive = isActive;
     }
 
@@ -27,11 +25,11 @@ public class Account {
         this.id = id;
     }
 
-    public Integer getAccountNumber() {
+    public Long getAccountNumber() {
         return accountNumber;
     }
 
-    public void setAccountNumber(Integer accountNumber) {
+    public void setAccountNumber(Long accountNumber) {
         this.accountNumber = accountNumber;
     }
 
@@ -51,14 +49,6 @@ public class Account {
         this.balance = balance;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     public boolean isActive() {
         return isActive;
     }
@@ -67,4 +57,21 @@ public class Account {
         isActive = active;
     }
 
+    @Override
+    public String toString() {
+        return String.format("%1$-5s",id) +
+                String.format("%1$-15s", accountNumber) +
+                String.format("%1$-15s", balance) +
+                String.format("%1$-10s",isActive);
+    }
+
+    /**
+     * Refill balance and return the current balance amount
+     * @param amount amount to refill
+     * @return current balance
+     */
+    public Double refill(Double amount) {
+        balance += amount;
+        return balance;
+    }
 }

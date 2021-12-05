@@ -1,6 +1,7 @@
 package realization;
 
 import com.sun.scenario.effect.impl.sw.java.JSWColorAdjustPeer;
+import enums.PaymentType;
 import enums.Role;
 import models.*;
 import services.paymentService;
@@ -10,8 +11,11 @@ import services.serviceImpl.subjectServiceImpl;
 import services.serviceImpl.testServiceImpl;
 import services.subjectService;
 import services.testService;
+import sun.management.counter.AbstractCounter;
 
+import javax.swing.plaf.IconUIResource;
 import java.sql.SQLOutput;
+import java.time.LocalDate;
 import java.util.*;
 
 public class main {
@@ -21,7 +25,6 @@ public class main {
     public static List<Subject> subjects = new ArrayList<>();
     public static List<FillBalanceHistory> balanceHistories = new ArrayList<>();
     public static List<UserTestHistory> userTestHistories = new ArrayList<>();
-    public static List<PaymentMethod> paymentMethods = new ArrayList<>();
 
     public static final registrationImpl registrationService = new registrationImpl();
     public static final subjectService subjectService = new subjectServiceImpl();
@@ -31,13 +34,31 @@ public class main {
 
     public static void main(String[] args) {
         System.out.println("Online Test");
-        User admin1 = new User(1L,
+        Account account1 = new Account(
+                1L,
+                1002_200_362211L,
+                1234,
+                0.0,
+                true);
+        User admin1 = new User(
+                100L,
                 "Admin",
                 "Super",
                 "admin@success.edu",
-                "root", Role.ADMIN);
+                "root",
+                Role.ADMIN,
+                account1);
         users = new ArrayList<>();
+        Map<PaymentType, Boolean> methods = new HashMap<>();
+        methods.put(PaymentType.CLICK, true);
+        PaymentMethod paymentMethod = new PaymentMethod(
+                1000L,
+                methods,
+                account1,
+                LocalDate.now());
+        admin1.setPaymentMethod(paymentMethod);
         users.add(admin1);
+
         while (true){
             mainMenu();
         }
@@ -101,7 +122,7 @@ public class main {
             System.out.println("1. Display subjects");
             System.out.println("2. Subject Services");
             System.out.println("3. Payment Services");
-            System.out.println("4. User Balance History");
+            System.out.println("4. User Payments History");
             System.out.println("0. SignOut\n");
             System.out.print("Menu: ");
             try {
@@ -153,15 +174,16 @@ public class main {
      */
     private static void showPaymentsMenu() {
         scanner = new Scanner(System.in);
-        System.out.println("\nPayment Service Menu");
-        System.out.println("1. Add payment method");
-        System.out.println("2. Edit payment method");
-        System.out.println("3. Delete payment method");
-        System.out.println("0. Return back\n");
-        System.out.print("Menu: ");
+
         int choice = -1;
         boolean stayHere = true;
         while (stayHere) {
+            System.out.println("\nPayment Service Menu");
+            System.out.println("1. Add payment method");
+            System.out.println("2. Edit payment method");
+            System.out.println("3. Delete payment method");
+            System.out.println("0. Return back\n");
+            System.out.print("Menu: ");
             try {
                 choice = scanner.nextInt();
                 switch (choice) {
@@ -170,20 +192,22 @@ public class main {
                         break;
                     case 2:
                     case 3:
-                        if (paymentMethods.size() == 0) {
+                        if (currentUser.getPaymentMethod() == null || currentUser.getPaymentMethod().getMethods().size() == 0) {
                             System.out.println("No payment methods available yet!");
                             break;
                         }
                         System.out.println("All Payment Methods");
-                        for (PaymentMethod method : paymentMethods) {
-                            System.out.println(method);
+                        int counter = 1;
+                        for (Map.Entry<PaymentType, Boolean> methods : currentUser.getPaymentMethod().getMethods().entrySet()) {
+                            String active = methods.getValue() ? "OK":"X";
+                            System.out.println(counter++ + ". " + methods.getKey() + " (" + active + ")");
                         }
-                        System.out.print("Payment method id: ");
+                        System.out.print("Payment method: ");
                         int innerChoice = scanner.nextInt();
                         if (choice == 2) {
-                            paymentService.editPaymentMethod((long) innerChoice);
+                            //paymentService.editPaymentMethod();
                         } else {
-                            paymentService.deletePaymentMethod((long) innerChoice);
+                            //paymentService.deletePaymentMethod();
                         }
                         break;
                     case 0:
@@ -251,7 +275,7 @@ public class main {
      */
     private static void applicantMenu(){
         // TODO: 12/4/21 applicant panel
-        System.out.println("Not implemented yet - applicant");
+
     }
 
 }

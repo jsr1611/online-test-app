@@ -2,10 +2,13 @@ package services.serviceImpl;
 
 import enums.Role;
 import javafx.animation.ScaleTransition;
+import models.Account;
 import models.User;
 import realization.main;
 import services.registration;
+import sun.management.counter.AbstractCounter;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class registrationImpl implements registration {
@@ -61,13 +64,69 @@ public class registrationImpl implements registration {
             else {
                 chosenRole = Role.ADMIN;
             }
+            String accountNumberStr = "";
+            Long accountNumber = null;
+            while (accountNumber == null) {
+                System.out.print("Enter account number you want in the platform (13 digits): ");
+                try {
+                    accountNumberStr = scanner.next();
+                    try {
+                        accountNumber = Long.valueOf(accountNumberStr);
+                        if(accountNumberStr.length() != 13){
+                            System.out.println("Please, enter 13 digits! No more, no less!");
+                            accountNumber = null;
+                            continue;
+                        }
+                    }catch (InputMismatchException e){
+                        System.out.println("Please, enter only numbers!");
+                        accountNumber = null;
+                        continue;
+                    }
+                    User accountExists = findByAccountNumber(accountNumber);
+                    if (accountExists != null) {
+                        accountNumber = null;
+                        System.out.println("An account with the given number already exists in the database.");
+                        System.out.println("Please, use a different account number.");
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            Integer accountPassword = null;
+            while (accountPassword == null){
+                System.out.print("Enter account password (4 digits): ");
+                String accountPasswordStr = scanner.next();
+                try {
+                    accountPassword = Integer.valueOf(accountPasswordStr);
+                    if(accountPasswordStr.length() != 4){
+                        System.out.println("Please, enter only 4 digits! No more, no less!");
+                        accountPassword = null;
+
+                    }
+                }catch (InputMismatchException e){
+                    System.out.println("Please, enter only numbers!");
+                    accountPassword = null;
+                }
+            }
+            Account account1 = new Account(
+                    main.users.size()+1L,
+                    accountNumber,
+                    accountPassword,
+                    0.0,
+                    true);
             User user = new User(
                     main.users.size()+1L,
                     firstName,
                     lastName,
                     email,
                     password,
-                    chosenRole);
+                    chosenRole,
+                    account1);
             main.users.add(user);
             System.out.println("===================================");
             System.out.println("User registration was successful!");
@@ -78,6 +137,15 @@ public class registrationImpl implements registration {
             e.printStackTrace();
         }
         return false;
+    }
+
+    private User findByAccountNumber(Long accountNumber) {
+        for (User user : main.users) {
+            if(user.getAccount().getAccountNumber().equals(accountNumber)){
+                return user;
+            }
+        }
+        return null;
     }
 
     @Override

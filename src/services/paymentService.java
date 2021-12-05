@@ -2,13 +2,14 @@ package services;
 
 import enums.PaymentType;
 import models.PaymentMethod;
+import models.User;
 
 public interface paymentService {
-    PaymentMethod addPaymentMethod();
+    PaymentType addPaymentMethod();
 
-    boolean editPaymentMethod(Long id);
+    boolean editPaymentMethod(PaymentType method);
 
-    boolean deletePaymentMethod(Long id);
+    boolean deletePaymentMethod(PaymentType method);
 
-    boolean refillBalance(Long id, Double amount);
+    boolean refillBalance(Long id, Double amount, User user);
 }
