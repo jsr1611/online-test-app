@@ -106,7 +106,6 @@ public class registrationImpl implements registration {
                     if(accountPasswordStr.length() != 4){
                         System.out.println("Please, enter only 4 digits! No more, no less!");
                         accountPassword = null;
-
                     }
                 }catch (InputMismatchException e){
                     System.out.println("Please, enter only numbers!");

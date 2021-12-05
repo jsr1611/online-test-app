@@ -25,6 +25,7 @@ public class main {
     public static List<Subject> subjects = new ArrayList<>();
     public static List<FillBalanceHistory> balanceHistories = new ArrayList<>();
     public static List<UserTestHistory> userTestHistories = new ArrayList<>();
+    public static Map<User, PaymentMethod> adminPaymentMap = new HashMap<>();
 
     public static final registrationImpl registrationService = new registrationImpl();
     public static final subjectService subjectService = new subjectServiceImpl();
@@ -51,6 +52,8 @@ public class main {
         users = new ArrayList<>();
         Map<PaymentType, Boolean> methods = new HashMap<>();
         methods.put(PaymentType.CLICK, true);
+        methods.put(PaymentType.CASH, true);
+        methods.put(PaymentType.PayMe, false);
         PaymentMethod paymentMethod = new PaymentMethod(
                 1000L,
                 methods,
@@ -58,9 +61,16 @@ public class main {
                 LocalDate.now());
         admin1.setPaymentMethod(paymentMethod);
         users.add(admin1);
+        adminPaymentMap.put(admin1, paymentMethod);
 
         while (true){
-            mainMenu();
+            try {
+                mainMenu();
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+
         }
     }
 
@@ -156,10 +166,13 @@ public class main {
         }
     }
 
+    /**
+     * Display subject id, title, number of tests, total points, and user points for all subjects
+     */
     private static void displaySubjects() {
         System.out.println("All Subjects");
         System.out.println(String.format("%1$-5s", "Id") +
-                String.format("%1$-15s", "Name") +
+                String.format("%1$-15s", "Subject") +
                 String.format("%1$-15s", "Tests") +
                 String.format("%1$-15s", "Total Points") +
                 String.format("%1$-15s", "User Points"));
@@ -185,6 +198,7 @@ public class main {
             System.out.println("0. Return back\n");
             System.out.print("Menu: ");
             try {
+                PaymentType userSelectedMethod = null;
                 choice = scanner.nextInt();
                 switch (choice) {
                     case 1:
@@ -274,8 +288,77 @@ public class main {
      * Applicant panel
      */
     private static void applicantMenu(){
+        User applicant = main.currentUser;
         // TODO: 12/4/21 applicant panel
+        scanner = new Scanner(System.in);
+        int choice = -1;
+        while (applicant.getSignedIn()){
+            System.out.println("\nAPPLICANT PANEL");
+            System.out.println("1. Select subject");
+            System.out.println("2. Test Results");
+            System.out.println("3. Check Balance");
+            System.out.println("4. User Payments History");
+            System.out.println("0. SignOut\n");
+            System.out.print("Menu: ");
+            try {
+                choice = scanner.nextInt();
+                switch (choice){
+                    case 1:
+                        if(subjects.size() == 0){
+                            System.out.println("No subjects yet!");
+                            break;
+                        }
+                        displaySubjects();
+                        Long subjectId = selectSubject();
+                        break;
+                    case 2:
+                        TestResults();
+                        break;
+                    case 3:
+                        System.out.println("Your account balance: " + applicant.getAccount().getBalance() + "(" + applicant.getAccount().isActive()+ ")");
+                        System.out.print("Do you want to refill your balance? 'y' for yes:");
+                        if(!applicant.getAccount().isActive()){
+                            System.out.println("Your account is blocked. Please, visit a bank to unblock it, and then try to refill again.");
+                            break;
+                        }
+                        String userResponse = scanner.next();
+                        if(userResponse.equals("y") || userResponse.equals("Y")){
+                            System.out.print("Enter amount: ");
+                            Double amountToRefill = scanner.nextDouble();
+                            Double balance = applicant.getAccount().refill(amountToRefill);
+                            FillBalanceHistory history = new FillBalanceHistory(
+                                    balanceHistories.size()+1L,
+                                    LocalDate.now(),
+                                    amountToRefill,
+                                    balance, null,
+                                    applicant);
+                            balanceHistories.add(history);
+                        }
 
+                        break;
+                    case 4:
+                        System.out.println("User Balance Fill History");
+                        for (FillBalanceHistory balanceHistory : main.balanceHistories) {
+                            System.out.println(balanceHistory);
+                        }
+                    case 0:
+                        currentUser.setSignedIn(false);
+                        break;
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    private static Long selectSubject() {
+        displaySubjects();
+        return null;
+    }
+
+    private static void TestResults() {
+        // TODO: 12/6/21 write the logic
     }
 
 }
