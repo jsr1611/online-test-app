@@ -353,8 +353,26 @@ public class main {
     }
 
     private static Long selectSubject() {
+        scanner = new Scanner(System.in);
         displaySubjects();
-        return null;
+        // TODO: 12/7/2021 Add logic for select subject and return the selected subject id
+        while (true) {
+            System.out.print("Subject id: ");
+            int choice = -1;
+            try {
+                choice = scanner.nextInt();
+
+                for (Subject subject : subjects) {
+                    if (subject.getId().equals((long) choice)) {
+                        return subject.getId();
+                    }
+                }
+                System.out.println("Wrong subject id! Please, try again!");
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Wrong input! Please, enter only subject id!");
+            }
+        }
     }
 
     private static void TestResults() {
