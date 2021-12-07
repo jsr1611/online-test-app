@@ -2,13 +2,13 @@ package models;
 
 public class Answer {
     private Long id;
-    private String answer;
-    private Boolean correct;
+    private String answerStr;
+    private Boolean isCorrect;
 
     public Answer(Long id, String answer, Boolean correct) {
         this.id = id;
-        this.answer = answer;
-        this.correct = correct;
+        this.answerStr = answer;
+        this.isCorrect = correct;
     }
 
     public Long getId() {
@@ -19,26 +19,26 @@ public class Answer {
         this.id = id;
     }
 
-    public String getAnswer() {
-        return answer;
+    public String getAnswerStr() {
+        return answerStr;
     }
 
-    public void setAnswer(String answer) {
-        this.answer = answer;
+    public void setAnswerStr(String answer) {
+        this.answerStr = answer;
     }
 
     public Boolean isCorrect() {
-        return correct;
+        return isCorrect;
     }
 
     public void setAsCorrect(Boolean correct) {
-        this.correct = correct;
+        this.isCorrect = correct;
     }
 
     @Override
     public String toString() {
         return String.format("%1$-5s", id) +
-                String.format("%1$-20s", answer) +
+                String.format("%1$-20s", answerStr) +
                 String.format("%1$-5s", isCorrect());
     }
 }

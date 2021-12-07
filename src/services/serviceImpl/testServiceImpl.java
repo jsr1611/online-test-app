@@ -7,9 +7,7 @@ import models.Test;
 import realization.main;
 import services.testService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class testServiceImpl implements testService {
     private Long testID = 1L;
@@ -63,14 +61,15 @@ public class testServiceImpl implements testService {
                         }
                     }
                 }
-                Question question = new Question(1L,
-                        questionText,
-                        answer1,
-                        answer2,
-                        answer3,
-                        5);
 
+                Set<Answer> answers = new HashSet<>();
+                answers.add(answer1);
+                answers.add(answer2);
+                answers.add(answer3);
+
+                Question question = new Question(1L, questionText, answers,5);
                 questionList.add(question);
+
             }catch (Exception e){
                 e.printStackTrace();
             }

@@ -1,30 +1,18 @@
 package models;
 
+import java.util.Set;
+
 public class Question {
     private Long id;
-    private String question;
-    private Answer A;
-    private Answer B;
-    private Answer C;
-    private Answer answer;
-    private Integer point; // mark
+    private String questionStr;
+    private Set<Answer> answers;
+    private Integer score; // mark
 
-    public Question(Long id, String question, Answer a, Answer b, Answer c, Integer point) {
+    public Question(Long id, String question, Set<Answer> answers, Integer point) {
         this.id = id;
-        this.question = question;
-        A = a;
-        B = b;
-        C = c;
-        this.point = point;
-        if(A.isCorrect()){
-            answer = A;
-        }
-        else if(B.isCorrect()){
-            answer = B;
-        }
-        else {
-            answer = C;
-        }
+        this.questionStr = question;
+        this.answers = answers;
+        this.score = point;
     }
 
     public Long getId() {
@@ -35,62 +23,66 @@ public class Question {
         this.id = id;
     }
 
-    public String getQuestion() {
-        return question;
+    public String getQuestionStr() {
+        return questionStr;
     }
 
-    public void setQuestion(String question) {
-        this.question = question;
+    public void setQuestionStr(String questionStr) {
+        this.questionStr = questionStr;
     }
 
-    public Answer getA() {
-        return A;
+    public Set<Answer> getAnswers() {
+        return answers;
     }
 
-    public void setA(Answer a) {
-        A = a;
+    public void setAnswers(Set<Answer> answers) {
+        this.answers = answers;
+    }
+    public Answer getCorrectAnswer(){
+        for (Answer answer : answers) {
+            if(answer.isCorrect()){
+                return answer;
+            }
+        }
+        return null;
     }
 
-    public Answer getB() {
-        return B;
+    public Integer getScore() {
+        return score;
     }
 
-    public void setB(Answer b) {
-        B = b;
-    }
-
-    public Answer getC() {
-        return C;
-    }
-
-    public void setC(Answer c) {
-        C = c;
-    }
-
-    public Answer getAnswer() {
-        return answer;
-    }
-
-    public void setAnswer(Answer answer) {
-        this.answer = answer;
-    }
-
-    public Integer getPoint() {
-        return point;
-    }
-
-    public void setPoint(Integer point) {
-        this.point = point;
+    public void setScore(Integer score) {
+        this.score = score;
     }
 
     @Override
     public String toString() {
+        StringBuilder answersStr = new StringBuilder();
+        for (Answer answer : answers) {
+            answersStr.append(String.format("%1$-20s", answer));
+        }
         return String.format("%1$-5s", id) +
-                String.format("%1$-20s",question) +
-                String.format("%1$-20s", A) +
-                String.format("%1$-20s", B) +
-                String.format("%1$-20s", C) +
-                String.format("%1$-20s", answer) +
-                String.format("%1$-10s", point);
+                String.format("%1$-20s", questionStr) +
+                answersStr +
+                String.format("%1$-20s", getCorrectAnswer()) +
+                String.format("%1$-10s", score);
+    }
+
+    public void printQuestion() {
+        StringBuilder questionStr = new StringBuilder();
+         questionStr.append("Question ").append(id).append(". ").append(this.questionStr).append(" (").append(score).append(" points)\n");
+        for (Answer answer : answers) {
+            questionStr.append(answer.getId()).append(". ").append(answer.getAnswerStr()).append("\n");
+        }
+        System.out.println(questionStr);
+    }
+
+    public Answer getAnswer(int answerId) {
+        for (Answer answer1 : answers) {
+            if(answer1.getId().equals((long)answerId)){
+                return answer1;
+            }
+        }
+        return null;
     }
 }

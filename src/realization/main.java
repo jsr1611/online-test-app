@@ -1,6 +1,5 @@
 package realization;
 
-import com.sun.scenario.effect.impl.sw.java.JSWColorAdjustPeer;
 import enums.PaymentType;
 import enums.Role;
 import models.*;
@@ -11,10 +10,9 @@ import services.serviceImpl.subjectServiceImpl;
 import services.serviceImpl.testServiceImpl;
 import services.subjectService;
 import services.testService;
-import sun.management.counter.AbstractCounter;
 
-import javax.swing.plaf.IconUIResource;
-import java.sql.SQLOutput;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -41,6 +39,14 @@ public class main {
                 1234,
                 0.0,
                 true);
+
+        Account account2 = new Account(
+                2L,
+                1002_111_223344L,
+                1611,
+                0.0,
+                true);
+
         User admin1 = new User(
                 100L,
                 "Admin",
@@ -49,8 +55,16 @@ public class main {
                 "root",
                 Role.ADMIN,
                 account1);
+        User user1 = new User(101L,
+                "Jumanazar",
+                "Saidov",
+                "js@gmail.com",
+                "1611",
+                Role.APPLICANT,
+                account2
+                );
         users = new ArrayList<>();
-        Map<PaymentType, Boolean> methods = new HashMap<>();
+        Map<PaymentType, Boolean> methods = new LinkedHashMap<>();
         methods.put(PaymentType.CLICK, true);
         methods.put(PaymentType.CASH, true);
         methods.put(PaymentType.PayMe, false);
@@ -61,7 +75,122 @@ public class main {
                 LocalDate.now());
         admin1.setPaymentMethod(paymentMethod);
         users.add(admin1);
+        users.add(user1);
         adminPaymentMap.put(admin1, paymentMethod);
+
+        // add tests from file
+        Subject subject = new Subject(subjects.size()+1L, "", null, 0);
+        List<Test> testRead = new ArrayList<>();
+        List<Question> questionsRead = new ArrayList<>();
+        int totalPoints = 0;
+        String path = "";
+        BufferedReader fileReader = null;
+        scanner = new Scanner(System.in);
+        String check = "";
+        try {
+            //System.out.print("Enter path for txt file: ");
+            //path = scanner.next();
+            //fileReader = new BufferedReader(new FileReader(path));
+            //check = "checked";
+        }catch (Exception ignored){}
+        finally {
+            path = "resources/SimpleMath.txt";
+            System.out.println(path);
+            try {
+                fileReader = new BufferedReader(new FileReader(path));
+            }
+            catch (Exception ignored){}
+
+
+            try {
+                String subjectName = path.substring(path.lastIndexOf("/")+1, path.indexOf(".")).trim();
+                if(subjectName.isEmpty()){
+                    System.out.print("Enter the subject: ");
+                    subjectName = scanner.nextLine();
+                }
+                subject.setName(subjectName);
+                String line = fileReader.readLine();
+                Test test01 = new Test(1L, null, 0, 0);
+                int testCounter = 1;
+                Question question01 = new Question(1L, "", null, 0);
+                Answer currAnswer = new Answer(1L, null, false);
+                Set<Answer> answer_list = new LinkedHashSet<>();
+                String questionStr = "", answerStr = "";
+                Long questionId = 1L, answerId = 1L;
+                int idIndex = -1, score = 0, scoreForTest = 0;
+                while (line != null){
+                    //System.out.println(line);
+                    if(line.startsWith("Test")){
+                        idIndex = line.indexOf(" ")+1;
+                        Long id = Long.parseLong(line.substring(idIndex).trim());
+                        if(testCounter < id ){
+                            test01.setTotalPoints(scoreForTest);
+                            test01.setQuestions(questionsRead);
+                            test01.setUserPoints(0);
+                            testRead.add(test01);
+                            test01 = new Test(testRead.size()+1L, null, 0, 0);
+                            testCounter++;
+                        }
+                        test01.setId(id);
+                    }
+                    if(line.startsWith("Question")){
+                        idIndex = line.indexOf(" ");
+                        questionId = Long.parseLong(line.substring(idIndex+1, idIndex+4));
+                        questionStr = line.substring(line.indexOf(".")+1, line.indexOf("[")).trim();
+                        question01.setQuestionStr(questionStr);
+                        question01.setId(questionId);
+                        score = Integer.parseInt(line.substring(line.indexOf("[")+1, line.indexOf("]")));
+                        question01.setScore(score);
+                        scoreForTest += score;
+                        totalPoints += score;
+                    }
+                    else if(line.startsWith("Answer")) {
+                        idIndex = line.indexOf(":");
+                        answerId = Long.parseLong(line.substring(idIndex-1, idIndex));
+                        answerStr = line.substring(idIndex+1).trim();
+                        currAnswer.setId(answerId);
+                        currAnswer.setAnswerStr(answerStr);
+
+                    }
+                    else if(line.length() == 1){
+                        if (line.equals("y")) {
+                            currAnswer.setAsCorrect(true);
+                        } else {
+                            currAnswer.setAsCorrect(false);
+                        }
+                        answer_list.add(currAnswer);
+                        currAnswer = new Answer(answer_list.size()+1L, "", false);
+                        if(answer_list.size() == 3){
+                            question01.setAnswers(answer_list);
+                            questionsRead.add(question01);
+                            answer_list = new LinkedHashSet<>();
+                            question01 = new Question(questionsRead.size()+1L, null, null, null);
+                        }
+                    }
+
+                    line = fileReader.readLine();
+
+                }
+                test01.setTotalPoints(scoreForTest);
+                test01.setQuestions(questionsRead);
+                test01.setUserPoints(0);
+
+                testRead.add(test01);
+                subject.setTestList(testRead);
+                subject.setTotalPoints(totalPoints);
+                subjects.add(subject);
+                System.out.println(testRead.size() + " test(s) in " + subjectName +" added");
+                fileReader.close();
+
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println();
+        }
+
+
+
+
 
         while (true){
             try {
@@ -294,12 +423,24 @@ public class main {
         int choice = -1;
         while (applicant.getSignedIn()){
             System.out.println("\nAPPLICANT PANEL");
+
             System.out.println("1. Select subject");
             System.out.println("2. Test Results");
             System.out.println("3. Check Balance");
             System.out.println("4. User Payments History");
             System.out.println("0. SignOut\n");
+
             System.out.print("Menu: ");
+            Subject subject = null;
+            UserTestHistory testHistory = new UserTestHistory(
+                    userTestHistories.size()+1L
+                    , applicant.getId()
+                    , null
+                    , null
+                    ,0
+                    ,LocalDate.now()
+                    );
+            boolean exitTest = false;
             try {
                 choice = scanner.nextInt();
                 switch (choice){
@@ -308,8 +449,92 @@ public class main {
                             System.out.println("No subjects yet!");
                             break;
                         }
-                        displaySubjects();
-                        Long subjectId = selectSubject();
+                        while (!exitTest) {
+                            displaySubjects();
+                            subject = selectSubject();
+                            if (subject != null) {
+                                List<Test> tests = subject.getTestList();
+                                if (tests.size() > 0) {
+                                    // take test
+                                    System.out.println("Start the test? Press Enter key to conitnue.");
+                                    try {
+                                        scanner.next();
+                                    }catch (Exception ignored){}
+                                    finally {
+                                        testHistory.setSubject(subject.getName());
+                                        int totalForAllTests = 0;
+                                        for (Test test : tests) {
+                                            if(testHistory != null){
+                                                testHistory.setTest(test);
+                                            }
+                                            boolean quitTest = false;
+                                            int totalForTest = 0;
+                                            for (Question question : test.getQuestions()) {
+                                                if(quitTest){
+                                                    break;
+                                                }
+                                                int scoreForTest = 0;
+                                                boolean notAnswered = true;
+                                                while (notAnswered && !quitTest) {
+                                                    question.printQuestion();
+                                                    System.out.println("To finish the test, enter 0");
+                                                    System.out.print("Answer: ");
+                                                    scanner = new Scanner(System.in);
+                                                    int answer = scanner.nextInt();
+                                                    if(answer >0 && answer <= 3){
+                                                        if(question.getCorrectAnswer().equals(question.getAnswer(answer))) {
+                                                            scoreForTest = question.getScore();
+                                                        }
+                                                        System.out.println("Good! Next question...");
+                                                        notAnswered = false;
+                                                        totalForTest += scoreForTest;
+                                                    }
+                                                    else if(answer == 0){
+                                                        System.out.println("Finishing the test.");
+                                                        System.out.println("Total score for the test: " + totalForTest + " out of " + test.getTotalPoints());
+                                                        test.setTotalPoints(totalForTest);
+                                                        quitTest = true;
+                                                        testHistory.setScore(totalForTest);
+                                                    }
+                                                    else {
+                                                        System.out.println("Wrong answer id! Please, enter correct answer id!");
+                                                    }
+                                                }
+                                                if(quitTest){
+                                                    break;
+                                                }
+                                            }
+                                            totalForAllTests += totalForTest;
+                                            System.out.println("Finishing the test.");
+                                            System.out.println("Total score for the test: " + totalForTest + " out of " + test.getTotalPoints());
+                                            test.setTotalPoints(totalForAllTests);
+                                            System.out.println("Do you want to continue to take another test? Enter 'y' to continue.");
+                                            System.out.print("User input: ");
+                                            testHistory.setScore(totalForTest);
+                                            userTestHistories.add(testHistory);
+                                            scanner = new Scanner(System.in);
+                                            String userResponse = scanner.next();
+                                            if(!userResponse.equals("y")){
+                                                break;
+                                            }
+                                            testHistory = new UserTestHistory(
+                                                    userTestHistories.size()+1L,
+                                                    applicant.getId(),
+                                                    subject.getName(),
+                                                    null,
+                                                    0,
+                                                    LocalDate.now());
+                                        }
+                                    }
+                                } else {
+                                    System.out.println("No tests are available for " + subject.getName());
+                                    exitTest = true;
+                                }
+                            }
+                            else {
+                                exitTest = true;
+                            }
+                        }
                         break;
                     case 2:
                         TestResults();
@@ -352,19 +577,18 @@ public class main {
 
     }
 
-    private static Long selectSubject() {
+    private static Subject selectSubject() {
         scanner = new Scanner(System.in);
-        displaySubjects();
         // TODO: 12/7/2021 Add logic for select subject and return the selected subject id
-        while (true) {
+        int counter = 3;
+        while (counter-- > 0) {
             System.out.print("Subject id: ");
             int choice = -1;
             try {
                 choice = scanner.nextInt();
-
                 for (Subject subject : subjects) {
                     if (subject.getId().equals((long) choice)) {
-                        return subject.getId();
+                        return subject;
                     }
                 }
                 System.out.println("Wrong subject id! Please, try again!");
@@ -373,6 +597,7 @@ public class main {
                 System.out.println("Wrong input! Please, enter only subject id!");
             }
         }
+        return null;
     }
 
     private static void TestResults() {

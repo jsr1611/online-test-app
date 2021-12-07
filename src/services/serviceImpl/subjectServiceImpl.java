@@ -24,8 +24,7 @@ public class subjectServiceImpl implements subjectService {
             Subject subjectAdded = new Subject(main.subjects.size() + 1L,
                     subject,
                     testList,
-                    testList.size() * 100,
-                    0);
+                    testList.size() * 100);
             main.subjects.add(subjectAdded);
             return subjectAdded;
         }

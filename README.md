@@ -39,12 +39,14 @@ UserTestSolveHistory classlarini OOP conception laridan foydalangan holatda (Enc
     - [x] Subject service
     
     - [x] Test service
+  
+    - [x] Taking tests
     
     - [ ] Payment service
     
     - [ ] Others
   
 - [ ] 3) Database integration
-    - [ ] Local (txt file)
+    - [x] Local (txt file)
     - [ ] SQL
     

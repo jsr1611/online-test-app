@@ -6,15 +6,13 @@ public class Subject {
     private Long id;
     private String name;
     private List<Test> testList;
-    private Integer totalPoints; // mark
-    private Integer userPoints;
+    private Integer totalPoints; // scores
 
-    public Subject(Long id, String name, List<Test> testList, Integer totalPoints, Integer userPoints) {
+    public Subject(Long id, String name, List<Test> testList, Integer totalPoints) {
         this.id = id;
         this.name = name;
         this.testList = testList;
         this.totalPoints = totalPoints;
-        this.userPoints = userPoints;
     }
 
     public Long getId() {
@@ -49,20 +47,11 @@ public class Subject {
         this.totalPoints = totalPoints;
     }
 
-    public Integer getUserPoints() {
-        return userPoints;
-    }
-
-    public void setUserPoints(Integer userPoints) {
-        this.userPoints = userPoints;
-    }
-
     @Override
     public String toString() {
         return String.format("%1$-5s", id) +
                 String.format("%1$-15s", name) +
                 String.format("%1$-15s", testList.size()) +
-                String.format("%1$-15s", totalPoints) +
-                String.format("%1$-15s", userPoints);
+                String.format("%1$-15s", totalPoints);
     }
 }

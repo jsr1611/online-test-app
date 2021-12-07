@@ -32,6 +32,10 @@ public class Test {
     }
 
     public Integer getTotalPoints() {
+        totalPoints = 0;
+        for (Question question : questions) {
+            totalPoints+= question.getScore();
+        }
         return totalPoints;
     }
 

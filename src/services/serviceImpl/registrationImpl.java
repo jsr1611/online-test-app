@@ -154,12 +154,21 @@ public class registrationImpl implements registration {
         int counter = 5;
         boolean loginSuccess = false;
         while (loginSuccess == false && --counter > 0) {
+            System.out.println("Enter 0 to previous menu: ");
             try {
                 System.out.print("Enter your email address: ");
                 email = scanner.next();
+                if(email.equals("0"))
+                {
+                    return false;
+                }
 
                 System.out.print("Enter your password: ");
                 password = scanner.next();
+                if(password.equals("0"))
+                {
+                    return false;
+                }
 
                 User user = findByEmailAndPassword(email, password);
                 if (user != null) {
@@ -178,8 +187,9 @@ public class registrationImpl implements registration {
                 e.printStackTrace();
             }
         }
-        System.out.println("You have used 5 consecutive attempts to sign-in without success. Please, check your registration credentials and come back again!");
-
+        if(counter == 0){
+            System.out.println("You have used 5 consecutive attempts to sign-in without success. Please, check your registration credentials and come back again!");
+        }
         return false;
 
 
