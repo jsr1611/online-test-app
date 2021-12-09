@@ -30,7 +30,7 @@ UserTestSolveHistory classlarini OOP conception laridan foydalangan holatda (Enc
 
 - [x] 1) Class creation
 
-- [ ] 2) Services:
+- [x] 2) Services:
 
     - [x] Registration service
     
@@ -44,7 +44,7 @@ UserTestSolveHistory classlarini OOP conception laridan foydalangan holatda (Enc
     
     - [x] Payment service
     
-    - [ ] Others
+    - [x] Others
   
 - [ ] 3) Database integration
     - [x] Local (txt file)

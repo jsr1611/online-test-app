@@ -48,6 +48,9 @@ public class Account {
     public void setBalance(Double balance) {
         this.balance = balance;
     }
+    public void addBalance(Double amount){
+        this.balance += amount;
+    }
 
     public boolean isActive() {
         return isActive;

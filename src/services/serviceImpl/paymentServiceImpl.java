@@ -126,9 +126,58 @@ public class paymentServiceImpl implements paymentService {
         return false;
     }
 
-    @Override
-    public List<PaymentType> findBySubject(Subject subject) {
-        return null;
 
+    @Override
+    public void printAllMethods() {
+        Boolean isActive = null;
+        int counter = 0;
+        for (Map.Entry<PaymentType, Boolean> method : main.adminPaymentMethod.getMethods().entrySet()) {
+            isActive = method.getValue();
+            if(isActive){
+                System.out.println(counter++ +" " + method.getKey() + "("+ (isActive ? " activated" : "deactivated" +")"));
+            }
+        }
+    }
+
+
+
+    public List<PaymentType> getAllActiveMethods() {
+        Boolean isActive;
+        List<PaymentType> activeMethods = new ArrayList<>();
+        int counter = 1;
+        for (Map.Entry<PaymentType, Boolean> method : main.adminPaymentMethod.getMethods().entrySet()) {
+            isActive = method.getValue();
+            if(isActive){
+                activeMethods.add(method.getKey());
+            }
+        }
+        return activeMethods;
+    }
+
+    @Override
+    public Boolean acceptPayment(PaymentType paymentType, Double amount) {
+        scanner = new Scanner(System.in);
+        String userResponse = "";
+        if(paymentType.equals(PaymentType.CLICK) || paymentType.equals(PaymentType.PayMe)){
+            if(main.currentUser.getAccount().getBalance() > amount){
+                main.adminPaymentMethod.getAccount().addBalance(amount);
+                main.currentUser.getAccount().addBalance(-1 * amount);
+                return true;
+            }else {
+                System.out.println("Not enough money in the account balance. Want to recharge your balance? Enter 'y' to continue.");
+            }
+        }else
+        {
+            System.out.println("Enter the amount with your hand: " + amount);
+            userResponse = scanner.next();
+            try {
+                if(userResponse.equals(amount.toString())){
+                    System.out.println("Payment successful!");
+                    return true;
+                }
+
+            }catch (Exception ignored){}
+        }
+        return false;
     }
 }

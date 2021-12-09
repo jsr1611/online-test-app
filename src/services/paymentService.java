@@ -16,5 +16,9 @@ public interface paymentService {
 
     boolean refillBalance(Long id, Double amount, User user);
 
-    List<PaymentType> findBySubject(Subject subject);
+    void printAllMethods();
+
+    List<PaymentType> getAllActiveMethods();
+
+    Boolean acceptPayment(PaymentType paymentType, Double amount);
 }
