@@ -13,6 +13,9 @@ import services.testService;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -78,118 +81,10 @@ public class main {
         users.add(user1);
         adminPaymentMap.put(admin1, paymentMethod);
 
-        // add tests from file
-        Subject subject = new Subject(subjects.size()+1L, "", null, 0);
-        List<Test> testRead = new ArrayList<>();
-        List<Question> questionsRead = new ArrayList<>();
-        int totalPoints = 0;
-        String path = "";
-        BufferedReader fileReader = null;
-        scanner = new Scanner(System.in);
-        String check = "";
-        try {
-            //System.out.print("Enter path for txt file: ");
-            //path = scanner.next();
-            //fileReader = new BufferedReader(new FileReader(path));
-            //check = "checked";
-        }catch (Exception ignored){}
-        finally {
-            path = "resources/SimpleMath.txt";
-            System.out.println(path);
-            try {
-                fileReader = new BufferedReader(new FileReader(path));
-            }
-            catch (Exception ignored){}
 
 
-            try {
-                String subjectName = path.substring(path.lastIndexOf("/")+1, path.indexOf(".")).trim();
-                if(subjectName.isEmpty()){
-                    System.out.print("Enter the subject: ");
-                    subjectName = scanner.nextLine();
-                }
-                subject.setName(subjectName);
-                String line = fileReader.readLine();
-                Test test01 = new Test(1L, null, 0, 0);
-                int testCounter = 1;
-                Question question01 = new Question(1L, "", null, 0);
-                Answer currAnswer = new Answer(1L, null, false);
-                Set<Answer> answer_list = new LinkedHashSet<>();
-                String questionStr = "", answerStr = "";
-                Long questionId = 1L, answerId = 1L;
-                int idIndex = -1, score = 0, scoreForTest = 0;
-                while (line != null){
-                    //System.out.println(line);
-                    if(line.startsWith("Test")){
-                        idIndex = line.indexOf(" ")+1;
-                        Long id = Long.parseLong(line.substring(idIndex).trim());
-                        if(testCounter < id ){
-                            test01.setTotalPoints(scoreForTest);
-                            test01.setQuestions(questionsRead);
-                            test01.setUserPoints(0);
-                            testRead.add(test01);
-                            test01 = new Test(testRead.size()+1L, null, 0, 0);
-                            testCounter++;
-                        }
-                        test01.setId(id);
-                    }
-                    if(line.startsWith("Question")){
-                        idIndex = line.indexOf(" ");
-                        questionId = Long.parseLong(line.substring(idIndex+1, idIndex+4));
-                        questionStr = line.substring(line.indexOf(".")+1, line.indexOf("[")).trim();
-                        question01.setQuestionStr(questionStr);
-                        question01.setId(questionId);
-                        score = Integer.parseInt(line.substring(line.indexOf("[")+1, line.indexOf("]")));
-                        question01.setScore(score);
-                        scoreForTest += score;
-                        totalPoints += score;
-                    }
-                    else if(line.startsWith("Answer")) {
-                        idIndex = line.indexOf(":");
-                        answerId = Long.parseLong(line.substring(idIndex-1, idIndex));
-                        answerStr = line.substring(idIndex+1).trim();
-                        currAnswer.setId(answerId);
-                        currAnswer.setAnswerStr(answerStr);
-
-                    }
-                    else if(line.length() == 1){
-                        if (line.equals("y")) {
-                            currAnswer.setAsCorrect(true);
-                        } else {
-                            currAnswer.setAsCorrect(false);
-                        }
-                        answer_list.add(currAnswer);
-                        currAnswer = new Answer(answer_list.size()+1L, "", false);
-                        if(answer_list.size() == 3){
-                            question01.setAnswers(answer_list);
-                            questionsRead.add(question01);
-                            answer_list = new LinkedHashSet<>();
-                            question01 = new Question(questionsRead.size()+1L, null, null, null);
-                        }
-                    }
-
-                    line = fileReader.readLine();
-
-                }
-                test01.setTotalPoints(scoreForTest);
-                test01.setQuestions(questionsRead);
-                test01.setUserPoints(0);
-
-                testRead.add(test01);
-                subject.setTestList(testRead);
-                subject.setTotalPoints(totalPoints);
-                subjects.add(subject);
-                System.out.println(testRead.size() + " test(s) in " + subjectName +" added");
-                fileReader.close();
-
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
-            System.out.println();
-        }
-
-
-
+        String filesFolderPath = "resources/";
+        readFiles(filesFolderPath);
 
 
         while (true){
@@ -201,6 +96,130 @@ public class main {
             }
 
         }
+    }
+
+    private static void readFiles(String filesFolderPath) {
+        List<String> paths = new ArrayList<>();
+        // add tests from file
+        Subject subject = new Subject(subjects.size()+1L, "", null, 0);
+        List<Test> testRead = new ArrayList<>();
+        List<Question> questionsRead = new ArrayList<>();
+        int totalPoints = 0;
+
+        try {
+
+            // read files' paths in the given folder
+            Files.walkFileTree(Paths.get("resources/"), new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    paths.add(file.toString());
+                    System.out.println("file: " + file);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+        BufferedReader fileReader = null;
+        scanner = new Scanner(System.in);
+        String check = "";
+        try {
+        }catch (Exception ignored){}
+        finally {
+            for (String path : paths) {
+
+                System.out.println(path);
+                try {
+                    fileReader = new BufferedReader(new FileReader(path));
+                } catch (Exception ignored) {
+                }
+                try {
+                    String subjectName = path.substring(path.lastIndexOf("/") + 1, path.indexOf(".")).trim();
+                    if (subjectName.isEmpty()) {
+                        System.out.print("Enter the subject: ");
+                        subjectName = scanner.nextLine();
+                    }
+                    subject.setName(subjectName);
+                    String line = fileReader.readLine();
+                    Test test01 = new Test(1L, null, 0, 0);
+                    int testCounter = 1;
+                    Question question01 = new Question(1L, "", null, 0);
+                    Answer currAnswer = new Answer(1L, null, false);
+                    Set<Answer> answer_list = new LinkedHashSet<>();
+                    String questionStr = "", answerStr = "";
+                    Long questionId = 1L, answerId = 1L;
+                    int idIndex = -1, score = 0, scoreForTest = 0;
+                    while (line != null) {
+                        //System.out.println(line);
+                        if (line.startsWith("Test")) {
+                            idIndex = line.indexOf(" ") + 1;
+                            Long id = Long.parseLong(line.substring(idIndex).trim());
+                            if (testCounter < id) {
+                                test01.setTotalPoints(scoreForTest);
+                                test01.setQuestions(questionsRead);
+                                test01.setUserPoints(0);
+                                testRead.add(test01);
+                                test01 = new Test(testRead.size() + 1L, null, 0, 0);
+                                testCounter++;
+                            }
+                            test01.setId(id);
+                        }
+                        if (line.startsWith("Question")) {
+                            idIndex = line.indexOf(" ");
+                            questionId = Long.parseLong(line.substring(idIndex + 1, idIndex + 4));
+                            questionStr = line.substring(line.indexOf(".") + 1, line.indexOf("[")).trim();
+                            question01.setQuestionStr(questionStr);
+                            question01.setId(questionId);
+                            score = Integer.parseInt(line.substring(line.indexOf("[") + 1, line.indexOf("]")));
+                            question01.setScore(score);
+                            scoreForTest += score;
+                            totalPoints += score;
+                        } else if (line.startsWith("Answer")) {
+                            idIndex = line.indexOf(":");
+                            answerId = Long.parseLong(line.substring(idIndex - 1, idIndex));
+                            answerStr = line.substring(idIndex + 1).trim();
+                            currAnswer.setId(answerId);
+                            currAnswer.setAnswerStr(answerStr);
+
+                        } else if (line.length() == 1) {
+                            if (line.equals("y")) {
+                                currAnswer.setAsCorrect(true);
+                            } else {
+                                currAnswer.setAsCorrect(false);
+                            }
+                            answer_list.add(currAnswer);
+                            currAnswer = new Answer(answer_list.size() + 1L, "", false);
+                            if (answer_list.size() == 3) {
+                                question01.setAnswers(answer_list);
+                                questionsRead.add(question01);
+                                answer_list = new LinkedHashSet<>();
+                                question01 = new Question(questionsRead.size() + 1L, null, null, null);
+                            }
+                        }
+
+                        line = fileReader.readLine();
+
+                    }
+                    test01.setTotalPoints(scoreForTest);
+                    test01.setQuestions(questionsRead);
+                    test01.setUserPoints(0);
+
+                    testRead.add(test01);
+                    subject.setTestList(testRead);
+                    subject.setTotalPoints(totalPoints);
+                    subjects.add(subject);
+                    System.out.println(testRead.size() + " test(s) in " + subjectName + " added");
+                    fileReader.close();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                System.out.println();
+            }
+        }
+
     }
 
     /**
@@ -601,7 +620,27 @@ public class main {
     }
 
     private static void TestResults() {
-        // TODO: 12/6/21 write the logic
+        System.out.println();
+        System.out.println("Test Results Of " + currentUser.getFirstName());
+        System.out.println();
+        userHistoryHeader();
+        for (UserTestHistory userTestHistory : userTestHistories) {
+            if(userTestHistory.getUserId().equals(currentUser.getId())){
+                System.out.println(userTestHistory);
+            }
+        }
+
+    }
+
+    /**
+     * Print the first line that introduces the items of userTestHistory object
+     */
+    private static void userHistoryHeader() {
+        System.out.println(String.format("%1$-5s", "Id") +
+                String.format("%1$-15s", "Subject")+
+                String.format("%1$-15s", "Score") +
+                String.format("%1$-15s", "Total") +
+                String.format("%1$-15s", "Date"));
     }
 
 }

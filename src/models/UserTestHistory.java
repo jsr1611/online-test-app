@@ -67,4 +67,13 @@ public class UserTestHistory {
     public void setScore(Integer score) {
         this.score = score;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%1$-5s", id) +
+                String.format("%1$-15s", subject)+
+                String.format("%1$-15s", score) +
+                String.format("%1$-15s",test.getTotalPoints()) +
+                String.format("%1$-15s", date);
+    }
 }
