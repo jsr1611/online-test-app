@@ -80,7 +80,7 @@ public class FillBalanceHistory {
     @Override
     public String toString() {
         return String.format("%1$-5s",id) +
-                String.format("%1$-10s",date) +
+                String.format("%1$-15s",date) +
                 String.format("%1$-15s",amount) +
                 String.format("%1$-15s",totalAmount) +
                 String.format("%1$-10s",paymentType) +

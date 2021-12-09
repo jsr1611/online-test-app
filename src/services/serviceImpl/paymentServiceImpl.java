@@ -66,11 +66,37 @@ public class paymentServiceImpl implements paymentService {
         scanner = new Scanner(System.in);
         System.out.println("\nEdit Payment Method Menu");
         PaymentType type = null, userSelectedMethod = null;
-        PaymentMethod methodToEdit = null;
-
-        int choice = -1;
-
-
+        for (Map.Entry<User, PaymentMethod> payMethod : main.adminPaymentMap.entrySet()) {
+            if(payMethod.getKey().equals(main.currentUser)){
+                for (Map.Entry<PaymentType, Boolean> userPayMethod : payMethod.getValue().getMethods().entrySet()) {
+                    if(userPayMethod.getKey().equals(method)){
+                        Boolean isActive = userPayMethod.getValue();
+                        System.out.println(userPayMethod.getKey() + " is " + (isActive ? "activated" : "deactivated") +".");
+                        System.out.println("Do you want to " + (isActive ? "deactivate" : "activate" + " it?"));
+                        String userResponse = "";
+                        if(userPayMethod.getValue()){
+                            System.out.print("You are about to deactivate this payment method. Enter 'y' to finish the process: ");
+                            userResponse = scanner.next();
+                            if(userResponse.equals("y")){
+                                payMethod.getValue().deactivate(method);
+                                System.out.println("Payment method " + method + " was successfully deactivated.");
+                                return true;
+                            }
+                        }
+                        else {
+                            System.out.print("You are about to activate this payment method. Enter 'y' to finish the process: ");
+                            userResponse = scanner.next();
+                            if(userResponse.equals("y")){
+                                payMethod.getValue().activateMethod(method);
+                                System.out.println("Payment method " + method + " was successfully activated.");
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        System.out.println("There was no change in payment method: " + method);
         return false;
     }
 

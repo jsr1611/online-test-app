@@ -46,6 +46,21 @@ public class PaymentMethod {
         }
     }
 
+
+    /**
+     * Check if certain payment method is activated or deactivated. if it is unavailable return null.
+     * @param type payment method
+     * @return return boolean or null if not exists
+     */
+    public Boolean isActive(PaymentType type){
+        for(Map.Entry<PaymentType, Boolean> method : methods.entrySet()){
+            if(method.getKey().equals(type)){
+                return method.getValue();
+            }
+        }
+        return null;
+    }
+
     public Boolean activateMethod(PaymentType type){
         for (Map.Entry<PaymentType, Boolean> method : methods.entrySet()) {
             if(method.getKey().equals(type)){

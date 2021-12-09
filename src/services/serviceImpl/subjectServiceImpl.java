@@ -17,6 +17,8 @@ public class subjectServiceImpl implements subjectService {
         System.out.println("ADD NEW SUBJECT");
         System.out.print("Subject: ");
         String subject = "";
+        double price = -1;
+        price = scanner.nextDouble();
         List<Test> testList = new ArrayList<>();
         try {
             subject = scanner.nextLine();
@@ -24,7 +26,7 @@ public class subjectServiceImpl implements subjectService {
             Subject subjectAdded = new Subject(main.subjects.size() + 1L,
                     subject,
                     testList,
-                    testList.size() * 100);
+                    testList.size() * 100, price);
             main.subjects.add(subjectAdded);
             return subjectAdded;
         }
@@ -81,5 +83,28 @@ public class subjectServiceImpl implements subjectService {
             }
         }
         return false;
+    }
+
+    @Override
+    public void updatePrice(Long subjectId) {
+        scanner = new Scanner(System.in);
+        Subject subject = findById(subjectId);
+        System.out.println("Test price for " + subject.getName() + ": "+ subject.getPrice());
+        System.out.print("Enter the new price: ");
+        double newPrice = -1;
+        newPrice = scanner.nextDouble();
+        subject.setPrice(newPrice);
+        System.out.println("Updated test price: " + subject.getPrice());
+        System.out.println("Subject test price has been successfully updated.");
+    }
+
+    public Subject findById(Long subjectId) {
+        Subject subjectSelected = null;
+        for (Subject subject : main.subjects) {
+            if(subject.getId().equals(subjectId)){
+                subjectSelected = subject;
+            }
+        }
+        return subjectSelected;
     }
 }

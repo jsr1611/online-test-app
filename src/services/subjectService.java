@@ -9,4 +9,6 @@ public interface subjectService {
     boolean updateSubject(Long id);
 
     boolean deleteSubject(Long id);
+
+    void updatePrice(Long innerChoice);
 }

@@ -16,6 +16,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.sql.SQLOutput;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -101,10 +102,8 @@ public class main {
     private static void readFiles(String filesFolderPath) {
         List<String> paths = new ArrayList<>();
         // add tests from file
-        Subject subject = new Subject(subjects.size()+1L, "", null, 0);
-        List<Test> testRead = new ArrayList<>();
-        List<Question> questionsRead = new ArrayList<>();
-        int totalPoints = 0;
+
+
 
         try {
 
@@ -128,8 +127,13 @@ public class main {
         try {
         }catch (Exception ignored){}
         finally {
+            List<Test> testRead = null;
+            List<Question> questionsRead = null;
+            int totalPoints = 0;
             for (String path : paths) {
-
+                testRead = new ArrayList<>();
+                questionsRead = new ArrayList<>();
+                Subject subject = new Subject(subjects.size()+1L, "", null, 0, 10000.0);
                 System.out.println(path);
                 try {
                     fileReader = new BufferedReader(new FileReader(path));
@@ -143,9 +147,12 @@ public class main {
                     }
                     subject.setName(subjectName);
                     String line = fileReader.readLine();
-                    Test test01 = new Test(1L, null, 0, 0);
+                    Long numTests = subject.getTestList() == null ? 1L : (subject.getTestList().size()+1L);
+                    Test test01 = new Test(numTests, null, 0, 0);
                     int testCounter = 1;
-                    Question question01 = new Question(1L, "", null, 0);
+                    Long numQuestions = test01.getQuestions() == null? 1L : (test01.getQuestions().size()+1L);
+
+                    Question question01 = new Question(numQuestions, "", null, 0);
                     Answer currAnswer = new Answer(1L, null, false);
                     Set<Answer> answer_list = new LinkedHashSet<>();
                     String questionStr = "", answerStr = "";
@@ -323,7 +330,7 @@ public class main {
                 String.format("%1$-15s", "Subject") +
                 String.format("%1$-15s", "Tests") +
                 String.format("%1$-15s", "Total Points") +
-                String.format("%1$-15s", "User Points"));
+                String.format("%1$-15s", "Price"));
         for (Subject subject : main.subjects) {
             System.out.println(subject);
         }
@@ -367,9 +374,29 @@ public class main {
                         System.out.print("Payment method: ");
                         int innerChoice = scanner.nextInt();
                         if (choice == 2) {
-                            //paymentService.editPaymentMethod();
+                            switch (innerChoice){
+                                case 1:
+                                    paymentService.editPaymentMethod(PaymentType.CLICK);
+                                    break;
+                                case 2:
+                                    paymentService.editPaymentMethod(PaymentType.CASH);
+                                    break;
+                                case 3:
+                                    paymentService.editPaymentMethod(PaymentType.PayMe);
+                                    break;
+                            }
                         } else {
-                            //paymentService.deletePaymentMethod();
+                            switch (innerChoice){
+                                case 1:
+                                    paymentService.deletePaymentMethod(PaymentType.CLICK);
+                                    break;
+                                case 2:
+                                    paymentService.deletePaymentMethod(PaymentType.CASH);
+                                    break;
+                                case 3:
+                                    paymentService.deletePaymentMethod(PaymentType.PayMe);
+                                    break;
+                            }
                         }
                         break;
                     case 0:
@@ -398,6 +425,7 @@ public class main {
             System.out.println("1. Add subject");
             System.out.println("2. Edit subject");
             System.out.println("3. Delete subject");
+            System.out.println("4. Update price");
             System.out.println("0. Return back\n");
             System.out.print("Menu: ");
             try {
@@ -408,17 +436,21 @@ public class main {
                         break;
                     case 2:
                     case 3:
+                    case 4:
                         if (subjects.size() == 0) {
                             System.out.println("No subjects available yet!");
                             break;
                         }
                         displaySubjects();
                         System.out.print("Subject id: ");
-                        int innerChoice = scanner.nextInt();
+                        double innerChoice = scanner.nextInt();
                         if (choice == 2) {
                             subjectService.updateSubject((long) innerChoice);
-                        } else {
+                        } else if(choice == 3) {
                             subjectService.deleteSubject((long) innerChoice);
+                        }
+                        else {
+                            subjectService.updatePrice((long)innerChoice);
                         }
                         break;
                     case 0:
@@ -582,6 +614,7 @@ public class main {
                         break;
                     case 4:
                         System.out.println("User Balance Fill History");
+                        fillBalanceHistoryHeader();
                         for (FillBalanceHistory balanceHistory : main.balanceHistories) {
                             System.out.println(balanceHistory);
                         }
@@ -595,6 +628,7 @@ public class main {
         }
 
     }
+
 
     private static Subject selectSubject() {
         scanner = new Scanner(System.in);
@@ -633,6 +667,7 @@ public class main {
     }
 
     /**
+     * Print this before printing the userTestHistory objects!
      * Print the first line that introduces the items of userTestHistory object
      */
     private static void userHistoryHeader() {
@@ -641,6 +676,21 @@ public class main {
                 String.format("%1$-15s", "Score") +
                 String.format("%1$-15s", "Total") +
                 String.format("%1$-15s", "Date"));
+    }
+
+
+
+    /**
+     * Print this before printing the fillBalanceHistory objects!
+     * Print the names of fillBalanceHistory objects as the first line
+     */
+    private static void fillBalanceHistoryHeader() {
+        System.out.println(String.format("%1$-5s", "Id") +
+                String.format("%1$-15s","Date") +
+                String.format("%1$-15s","Amount") +
+                String.format("%1$-15s","Total Balance") +
+                String.format("%1$-10s","Payment Type") +
+                String.format("%1$-25s","Name (Role)"));
     }
 
 }
