@@ -27,7 +27,7 @@ public class main {
     public static List<Subject> subjects = new ArrayList<>();
     public static List<FillBalanceHistory> balanceHistories = new ArrayList<>();
     public static List<UserTestHistory> userTestHistories = new ArrayList<>();
-    public static Map<User, PaymentMethod> adminPaymentMap = new HashMap<>();
+    public static PaymentMethod adminPaymentMethod = null;
 
     public static final registrationImpl registrationService = new registrationImpl();
     public static final subjectService subjectService = new subjectServiceImpl();
@@ -37,14 +37,14 @@ public class main {
 
     public static void main(String[] args) {
         System.out.println("Online Test");
-        Account account1 = new Account(
+        Account adminAccount = new Account(
                 1L,
                 1002_200_362211L,
                 1234,
                 0.0,
                 true);
 
-        Account account2 = new Account(
+        Account userAccount = new Account(
                 2L,
                 1002_111_223344L,
                 1611,
@@ -58,30 +58,28 @@ public class main {
                 "admin@success.edu",
                 "root",
                 Role.ADMIN,
-                account1);
+                adminAccount);
         User user1 = new User(101L,
                 "Jumanazar",
                 "Saidov",
                 "js@gmail.com",
                 "1611",
                 Role.APPLICANT,
-                account2
+                userAccount
                 );
         users = new ArrayList<>();
         Map<PaymentType, Boolean> methods = new LinkedHashMap<>();
         methods.put(PaymentType.CLICK, true);
         methods.put(PaymentType.CASH, true);
         methods.put(PaymentType.PayMe, false);
-        PaymentMethod paymentMethod = new PaymentMethod(
+        adminPaymentMethod = new PaymentMethod(
                 1000L,
                 methods,
-                account1,
+                adminAccount,
                 LocalDate.now());
-        admin1.setPaymentMethod(paymentMethod);
+        admin1.setPaymentMethod(adminPaymentMethod);
         users.add(admin1);
         users.add(user1);
-        adminPaymentMap.put(admin1, paymentMethod);
-
 
 
         String filesFolderPath = "resources/";
@@ -599,6 +597,7 @@ public class main {
                         }
                         String userResponse = scanner.next();
                         if(userResponse.equals("y") || userResponse.equals("Y")){
+
                             System.out.print("Enter amount: ");
                             Double amountToRefill = scanner.nextDouble();
                             Double balance = applicant.getAccount().refill(amountToRefill);
@@ -630,6 +629,10 @@ public class main {
     }
 
 
+    /**
+     * Select a subject
+     * @return subject
+     */
     private static Subject selectSubject() {
         scanner = new Scanner(System.in);
         // TODO: 12/7/2021 Add logic for select subject and return the selected subject id
@@ -653,6 +656,10 @@ public class main {
         return null;
     }
 
+
+    /**
+     * Printing test results of the user
+     */
     private static void TestResults() {
         System.out.println();
         System.out.println("Test Results Of " + currentUser.getFirstName());
@@ -665,6 +672,7 @@ public class main {
         }
 
     }
+
 
     /**
      * Print this before printing the userTestHistory objects!

@@ -42,7 +42,7 @@ UserTestSolveHistory classlarini OOP conception laridan foydalangan holatda (Enc
   
     - [x] Taking tests
     
-    - [ ] Payment service
+    - [x] Payment service
     
     - [ ] Others
   
