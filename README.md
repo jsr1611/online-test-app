@@ -38,10 +38,10 @@ Technical Requirements
     - [x] Continuous service (while loop, sign in, user verification)
     
     - [x] Subject service
-    
+  
     - [x] Test service
   
-    - [x] Taking tests
+      - [x] Taking tests
     
     - [ ] Payment service
       - [x] Basic payment

@@ -88,10 +88,10 @@ public class main {
         String filesFolderPath = "resources/";
         readFiles(filesFolderPath);
 
-
-        while (true){
+        boolean exitApp = false;
+        while (!exitApp){
             try {
-                mainMenu();
+                exitApp = mainMenu();
             }
             catch (Exception e){
                 e.printStackTrace();
@@ -266,12 +266,13 @@ public class main {
     /**
      * MAIN MENU: Registration, SignIn
      */
-    private static void mainMenu() {
-
+    private static boolean mainMenu() {
+        boolean exit = false;
         while (currentUser == null || !currentUser.getSignedIn()) {
             System.out.println("\n1. SignUp");
             System.out.println("2. SignIn");
             System.out.println("3. Find username/password\n");
+            System.out.println("0. Exit");
             System.out.print("Menu: ");
             scanner = new Scanner(System.in);
             int choice = -1;
@@ -279,6 +280,9 @@ public class main {
             try {
                 choice = scanner.nextInt();
                 switch (choice) {
+                    case 0:
+                        exit = true;
+                        break;
                     case 1:
                         registrationService.signUp();
                         break;
@@ -289,6 +293,9 @@ public class main {
                         break;
                     default:
                         System.out.println("Not Implemented Yet!");
+                }
+                if(exit){
+                    return true;
                 }
 
             } catch (InputMismatchException e) {
@@ -305,6 +312,7 @@ public class main {
             currentUser.setSignedIn(false);
             System.out.println("Bye, " + currentUser.getFirstName() + "!");
         }
+        return exit;
     }
 
 
@@ -312,10 +320,9 @@ public class main {
      * Admin panel
      */
     private static void adminMenu(){
-        // TODO: 12/4/21 admin panel
-        scanner = new Scanner(System.in);
         int choice = -1;
         while (currentUser.getSignedIn()){
+            scanner = new Scanner(System.in);
             System.out.println("\nADMIN PANEL");
             System.out.println("1. Display subjects");
             System.out.println("2. Subject Services");
@@ -344,6 +351,10 @@ public class main {
                         for (FillBalanceHistory balanceHistory : main.balanceHistories) {
                             System.out.println(balanceHistory);
                         }
+                        if(main.balanceHistories.size() == 0){
+                            System.out.println("No balance fill histories found!");
+                        }
+                        break;
                     case 0:
                         currentUser.setSignedIn(false);
                         break;
@@ -353,6 +364,189 @@ public class main {
             }
         }
     }
+
+    /**
+     * Applicant panel
+     */
+    private static void applicantMenu(){
+        User applicant = main.currentUser;
+
+        int choice = -1;
+        while (applicant.getSignedIn()){
+            scanner = new Scanner(System.in);
+            System.out.println("\nAPPLICANT PANEL");
+
+            System.out.println("1. Select subject");
+            System.out.println("2. Test Results");
+            System.out.println("3. Check Balance");
+            System.out.println("4. User Payments History");
+            System.out.println("0. SignOut\n");
+
+            System.out.print("Menu: ");
+            Subject subject = null;
+            UserTestHistory testHistory = new UserTestHistory(
+                    userTestHistories.size()+1L
+                    , applicant.getId()
+                    , null
+                    , null
+                    ,0
+                    ,LocalDate.now()
+            );
+            boolean exitTest = false;
+            try {
+
+
+                choice = scanner.nextInt();
+
+
+                switch (choice){
+                    case 1:
+                        if(subjects.size() == 0){
+                            System.out.println("No subjects yet!");
+                            break;
+                        }
+                        while (!exitTest) {
+                            displaySubjects();
+                            subject = selectSubject();
+                            if (subject != null) {
+                                List<Test> tests = subject.getTestList();
+                                if (tests.size() > 0) {
+                                    System.out.println("Test price: " + subject.getPrice());
+                                    PaymentType paymentType = choosePaymentType();
+                                    Boolean paymentStatus = paymentService.acceptPayment(paymentType, subject.getPrice());
+                                    if(paymentStatus) {
+                                        // take test
+                                        System.out.println("Start the test? Press Enter key to conitnue.");
+                                        try {
+                                            scanner.next();
+                                        } catch (Exception ignored) {
+                                        } finally {
+                                            testHistory.setSubject(subject.getName());
+                                            int totalForAllTests = 0;
+                                            for (Test test : tests) {
+                                                testHistory.setTest(test);
+                                                boolean quitTest = false;
+                                                int totalForTest = 0;
+                                                for (Question question : test.getQuestions()) {
+                                                    if (quitTest) {
+                                                        break;
+                                                    }
+                                                    int scoreForTest = 0;
+                                                    boolean notAnswered = true;
+                                                    while (notAnswered && !quitTest) {
+                                                        question.printQuestion();
+                                                        System.out.println("To finish the test, enter 0");
+                                                        System.out.print("Answer: ");
+                                                        scanner = new Scanner(System.in);
+                                                        int answer = scanner.nextInt();
+                                                        if (answer > 0 && answer <= 3) {
+                                                            if (question.getCorrectAnswer().equals(question.getAnswer(answer))) {
+                                                                scoreForTest = question.getScore();
+                                                            }
+                                                            System.out.println("Good! Next question...");
+                                                            notAnswered = false;
+                                                            totalForTest += scoreForTest;
+                                                        } else if (answer == 0) {
+                                                            System.out.println("Finishing the test.");
+                                                            System.out.println("Total score for the test: " + totalForTest + " out of " + test.getTotalPoints());
+                                                            test.setTotalPoints(totalForTest);
+                                                            quitTest = true;
+                                                            testHistory.setScore(totalForTest);
+
+                                                        } else {
+                                                            System.out.println("Wrong answer id! Please, enter correct answer id!");
+                                                        }
+                                                    }
+                                                    if (quitTest) {
+                                                        break;
+                                                    }
+                                                }
+                                                totalForAllTests += totalForTest;
+                                                System.out.println("Finishing the test.");
+                                                System.out.println("Total score for the test: " + totalForTest + " out of " + test.getTotalPoints());
+                                                test.setTotalPoints(totalForAllTests);
+                                                System.out.println("Do you want to continue to take another test? Enter 'y' to continue.");
+                                                System.out.print("User input: ");
+                                                testHistory.setScore(totalForTest);
+                                                userTestHistories.add(testHistory);
+                                                scanner = new Scanner(System.in);
+                                                String userResponse = scanner.next();
+                                                if (!userResponse.equals("y")) {
+                                                    break;
+                                                }
+                                                testHistory = new UserTestHistory(
+                                                        userTestHistories.size() + 1L,
+                                                        applicant.getId(),
+                                                        subject.getName(),
+                                                        null,
+                                                        0,
+                                                        LocalDate.now());
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        System.out.println("Payment failed! Please, try again.");
+                                    }
+                                } else {
+                                    System.out.println("No tests are available for " + subject.getName());
+                                    exitTest = true;
+                                }
+                            }
+                            else {
+                                exitTest = true;
+                            }
+                        }
+                        break;
+                    case 2:
+                        TestResults();
+                        break;
+                    case 3:
+                        System.out.println("Your account balance: " + applicant.getAccount().getBalance() + "(" + applicant.getAccount().isActive()+ ")");
+                        System.out.print("Do you want to refill your balance? 'y' for yes:");
+                        if(!applicant.getAccount().isActive()){
+                            System.out.println("Your account is blocked. Please, visit a bank to unblock it, and then try to refill again.");
+                            break;
+                        }
+                        String userResponse = scanner.next();
+                        if(userResponse.equals("y") || userResponse.equals("Y")){
+                            PaymentType paymentType = choosePaymentType();
+                            if(paymentType == null){
+                                System.out.println("Error in payment type selection! Please, try again later.");
+                            }else {
+                                System.out.print("Enter amount: ");
+                                Double amountToRefill = scanner.nextDouble();
+                                Double balance = applicant.getAccount().refill(amountToRefill);
+                                FillBalanceHistory history = new FillBalanceHistory(
+                                        balanceHistories.size() + 1L,
+                                        LocalDate.now(),
+                                        amountToRefill,
+                                        balance, paymentType,
+                                        applicant);
+                                balanceHistories.add(history);
+                            }
+                        }
+                        break;
+                    case 4:
+                        System.out.println("User Balance Fill History");
+                        fillBalanceHistoryHeader();
+                        for (FillBalanceHistory balanceHistory : main.balanceHistories) {
+                            System.out.println(balanceHistory);
+                        }
+                        if(main.balanceHistories.size()==0){
+                            System.out.println("No balance fill histories found!");
+                        }
+                        break;
+                    case 0:
+                        currentUser.setSignedIn(false);
+                        break;
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+    }
+
 
     /**
      * Display subject id, title, number of tests, total points, and user points for all subjects
@@ -497,176 +691,6 @@ public class main {
         }
     }
 
-    /**
-     * Applicant panel
-     */
-    private static void applicantMenu(){
-        User applicant = main.currentUser;
-        scanner = new Scanner(System.in);
-        int choice = -1;
-        while (applicant.getSignedIn()){
-            System.out.println("\nAPPLICANT PANEL");
-
-            System.out.println("1. Select subject");
-            System.out.println("2. Test Results");
-            System.out.println("3. Check Balance");
-            System.out.println("4. User Payments History");
-            System.out.println("0. SignOut\n");
-
-            System.out.print("Menu: ");
-            Subject subject = null;
-            UserTestHistory testHistory = new UserTestHistory(
-                    userTestHistories.size()+1L
-                    , applicant.getId()
-                    , null
-                    , null
-                    ,0
-                    ,LocalDate.now()
-                    );
-            boolean exitTest = false;
-            try {
-                choice = scanner.nextInt();
-                switch (choice){
-                    case 1:
-                        if(subjects.size() == 0){
-                            System.out.println("No subjects yet!");
-                            break;
-                        }
-                        while (!exitTest) {
-                            displaySubjects();
-                            subject = selectSubject();
-                            if (subject != null) {
-                                List<Test> tests = subject.getTestList();
-                                if (tests.size() > 0) {
-                                    System.out.println("Test price: " + subject.getPrice());
-                                    PaymentType paymentType = choosePaymentType();
-                                    Boolean paymentStatus = paymentService.acceptPayment(paymentType, subject.getPrice());
-                                    if(paymentStatus) {
-                                        // take test
-                                        System.out.println("Start the test? Press Enter key to conitnue.");
-                                        try {
-                                            scanner.next();
-                                        } catch (Exception ignored) {
-                                        } finally {
-                                            testHistory.setSubject(subject.getName());
-                                            int totalForAllTests = 0;
-                                            for (Test test : tests) {
-                                                testHistory.setTest(test);
-                                                boolean quitTest = false;
-                                                int totalForTest = 0;
-                                                for (Question question : test.getQuestions()) {
-                                                    if (quitTest) {
-                                                        break;
-                                                    }
-                                                    int scoreForTest = 0;
-                                                    boolean notAnswered = true;
-                                                    while (notAnswered && !quitTest) {
-                                                        question.printQuestion();
-                                                        System.out.println("To finish the test, enter 0");
-                                                        System.out.print("Answer: ");
-                                                        scanner = new Scanner(System.in);
-                                                        int answer = scanner.nextInt();
-                                                        if (answer > 0 && answer <= 3) {
-                                                            if (question.getCorrectAnswer().equals(question.getAnswer(answer))) {
-                                                                scoreForTest = question.getScore();
-                                                            }
-                                                            System.out.println("Good! Next question...");
-                                                            notAnswered = false;
-                                                            totalForTest += scoreForTest;
-                                                        } else if (answer == 0) {
-                                                            System.out.println("Finishing the test.");
-                                                            System.out.println("Total score for the test: " + totalForTest + " out of " + test.getTotalPoints());
-                                                            test.setTotalPoints(totalForTest);
-                                                            quitTest = true;
-                                                            testHistory.setScore(totalForTest);
-
-                                                        } else {
-                                                            System.out.println("Wrong answer id! Please, enter correct answer id!");
-                                                        }
-                                                    }
-                                                    if (quitTest) {
-                                                        break;
-                                                    }
-                                                }
-                                                totalForAllTests += totalForTest;
-                                                System.out.println("Finishing the test.");
-                                                System.out.println("Total score for the test: " + totalForTest + " out of " + test.getTotalPoints());
-                                                test.setTotalPoints(totalForAllTests);
-                                                System.out.println("Do you want to continue to take another test? Enter 'y' to continue.");
-                                                System.out.print("User input: ");
-                                                testHistory.setScore(totalForTest);
-                                                userTestHistories.add(testHistory);
-                                                scanner = new Scanner(System.in);
-                                                String userResponse = scanner.next();
-                                                if (!userResponse.equals("y")) {
-                                                    break;
-                                                }
-                                                testHistory = new UserTestHistory(
-                                                        userTestHistories.size() + 1L,
-                                                        applicant.getId(),
-                                                        subject.getName(),
-                                                        null,
-                                                        0,
-                                                        LocalDate.now());
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    System.out.println("No tests are available for " + subject.getName());
-                                    exitTest = true;
-                                }
-                            }
-                            else {
-                                exitTest = true;
-                            }
-                        }
-                        break;
-                    case 2:
-                        TestResults();
-                        break;
-                    case 3:
-                        System.out.println("Your account balance: " + applicant.getAccount().getBalance() + "(" + applicant.getAccount().isActive()+ ")");
-                        System.out.print("Do you want to refill your balance? 'y' for yes:");
-                        if(!applicant.getAccount().isActive()){
-                            System.out.println("Your account is blocked. Please, visit a bank to unblock it, and then try to refill again.");
-                            break;
-                        }
-                        String userResponse = scanner.next();
-                        if(userResponse.equals("y") || userResponse.equals("Y")){
-                            PaymentType paymentType = choosePaymentType();
-                            if(paymentType == null){
-                                System.out.println("Error in payment type selection! Please, try again later.");
-                            }else {
-                                System.out.print("Enter amount: ");
-                                Double amountToRefill = scanner.nextDouble();
-                                Double balance = applicant.getAccount().refill(amountToRefill);
-                                FillBalanceHistory history = new FillBalanceHistory(
-                                        balanceHistories.size() + 1L,
-                                        LocalDate.now(),
-                                        amountToRefill,
-                                        balance, paymentType,
-                                        applicant);
-                                balanceHistories.add(history);
-                            }
-                        }
-                        break;
-                    case 4:
-                        System.out.println("User Balance Fill History");
-                        fillBalanceHistoryHeader();
-                        for (FillBalanceHistory balanceHistory : main.balanceHistories) {
-                            System.out.println(balanceHistory);
-                        }
-                        break;
-                    case 0:
-                        currentUser.setSignedIn(false);
-                        break;
-                }
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-
-    }
 
     private static PaymentType choosePaymentType() {
         List<PaymentType> activeMethods = paymentService.getAllActiveMethods();
@@ -679,7 +703,7 @@ public class main {
         while (counterLoop-- > 0) {
             int methodId = 1;
             for (PaymentType method : activeMethods) {
-                System.out.println(methodId + ". " + method + "(activated)");
+                System.out.println(methodId++ + ". " + method + " (activated)");
             }
             System.out.print("Choose payment method: ");
             try {
@@ -688,8 +712,11 @@ public class main {
                     System.out.println("Wrong menu option! Please, try again.");
                 }else {
                     typeSelected = activeMethods.get(menu-1);
+                    break;
                 }
-            }catch (Exception ignored){}
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
         return typeSelected;
     }
@@ -701,8 +728,6 @@ public class main {
      */
     private static Subject selectSubject() {
         scanner = new Scanner(System.in);
-        int counter = 3;
-        while (counter-- > 0) {
             System.out.print("Subject id: ");
             int choice = -1;
             try {
@@ -712,12 +737,12 @@ public class main {
                         return subject;
                     }
                 }
-                System.out.println("Wrong subject id! Please, try again!");
+                System.out.println("Wrong subject id! Please, try again. Exiting the current menu...");
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("Wrong input! Please, enter only subject id!");
+                System.out.println("Wrong input! Please, try again. Exiting the current menu...");
             }
-        }
+
         return null;
     }
 
@@ -730,12 +755,16 @@ public class main {
         System.out.println("Test Results Of " + currentUser.getFirstName());
         System.out.println();
         userTestHistoryHeader();
+        int counter = 0;
         for (UserTestHistory userTestHistory : userTestHistories) {
             if(userTestHistory.getUserId().equals(currentUser.getId())){
                 System.out.println(userTestHistory);
+                counter++;
             }
         }
-
+        if(counter==0){
+            System.out.println("No tests were found!");
+        }
     }
 
 
@@ -745,9 +774,9 @@ public class main {
      */
     private static void userTestHistoryHeader() {
         System.out.println(String.format("%1$-5s", "Id") +
-                String.format("%1$-15s", "Subject")+
-                String.format("%1$-15s", "Score") +
-                String.format("%1$-15s", "Total") +
+                String.format("%1$-20s", "Subject")+
+                String.format("%1$-20s", "Score (%)") +
+                String.format("%1$-20s", "Total") +
                 String.format("%1$-15s", "Date"));
     }
 

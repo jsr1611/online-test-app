@@ -71,9 +71,15 @@ public class UserTestHistory {
     @Override
     public String toString() {
         return String.format("%1$-5s", id) +
-                String.format("%1$-15s", subject)+
-                String.format("%1$-15s", score) +
-                String.format("%1$-15s",test.getTotalPoints()) +
+                String.format("%1$-20s", subject)+
+                String.format("%1$-20s", score + " ("+getPercentage(score, test.getTotalPoints())+")") +
+                String.format("%1$-20s",test.getTotalPoints()) +
                 String.format("%1$-15s", date);
+    }
+
+    private Double getPercentage(Integer score, Integer totalPoints) {
+        Double percentage = 0.0;
+        percentage = (score * 100.0) / totalPoints;
+        return percentage;
     }
 }

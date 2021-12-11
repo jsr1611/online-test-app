@@ -72,7 +72,7 @@ public class registrationImpl implements registration {
                 try {
                     accountNumberStr = scanner.next();
                     try {
-                        accountNumber = Long.valueOf(accountNumberStr);
+                        accountNumber = Long.parseLong(accountNumberStr);
                         if(accountNumberStr.length() != 13){
                             System.out.println("Please, enter 13 digits! No more, no less!");
                             accountNumber = null;

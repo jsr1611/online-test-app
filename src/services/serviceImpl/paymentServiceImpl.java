@@ -206,15 +206,24 @@ public class paymentServiceImpl implements paymentService {
             }
         }else
         {
-            System.out.println("Enter the amount with your hand: " + amount);
-            userResponse = scanner.next();
-            try {
-                if(userResponse.equals(amount.toString())){
-                    System.out.println("Payment successful!");
-                    return true;
-                }
+            boolean paymentSuccess = false;
+            int counter = 5;
+            while (!paymentSuccess && --counter > 0){
+                System.out.println("Enter the test price amount by hand: " + amount);
+                userResponse = scanner.next();
+                try {
+                    if(userResponse.equals(amount.toString())){
+                        System.out.println("Payment successful!");
+                        return true;
+                    }
+                    else {
+                        System.out.println("Payment amount didn't match. Please, try again!");
+                    }
 
-            }catch (Exception ignored){}
+                }catch (InputMismatchException e){
+                    System.out.println("Wrong input. Please, try again!");
+                }
+            }
         }
         return false;
     }
