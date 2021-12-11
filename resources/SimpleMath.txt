@@ -1,3 +1,4 @@
+20000.0 UZS
 Test 001
 Question 001. 1+2*3=? [5]
 Answer 1: 9

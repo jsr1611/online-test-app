@@ -1,5 +1,6 @@
 package services.serviceImpl;
 
+import enums.Currency;
 import models.Subject;
 import models.Test;
 import realization.main;
@@ -19,6 +20,7 @@ public class subjectServiceImpl implements subjectService {
         String subject = "";
         double price = -1;
         price = scanner.nextDouble();
+        Currency currency = paymentServiceImpl.getCurrencyTag();
         List<Test> testList = new ArrayList<>();
         try {
             subject = scanner.nextLine();
@@ -26,7 +28,9 @@ public class subjectServiceImpl implements subjectService {
             Subject subjectAdded = new Subject(main.subjects.size() + 1L,
                     subject,
                     testList,
-                    testList.size() * 100, price);
+                    testList.size() * 100,
+                    price,
+                    currency);
             main.subjects.add(subjectAdded);
             return subjectAdded;
         }
@@ -35,6 +39,7 @@ public class subjectServiceImpl implements subjectService {
         }
         return null;
     }
+
 
     @Override
     public boolean updateSubject(Long id) {

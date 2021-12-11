@@ -1,5 +1,7 @@
 package models;
 
+import enums.Currency;
+
 import java.util.List;
 
 public class Account {
@@ -7,13 +9,15 @@ public class Account {
     private Long accountNumber;
     private Integer password;
     private Double balance;
+    private Currency currency;
     private boolean isActive;
 
-    public Account(Long id, Long accountNumber, Integer password, Double balance, boolean isActive) {
+    public Account(Long id, Long accountNumber, Integer password, Double balance, Currency currency, boolean isActive) {
         this.id = id;
         this.accountNumber = accountNumber;
         this.password = password;
         this.balance = balance;
+        this.currency = currency;
         this.isActive = isActive;
     }
 
@@ -52,6 +56,14 @@ public class Account {
         this.balance += amount;
     }
 
+    public Currency getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
+    }
+
     public boolean isActive() {
         return isActive;
     }
@@ -64,7 +76,7 @@ public class Account {
     public String toString() {
         return String.format("%1$-5s",id) +
                 String.format("%1$-15s", accountNumber) +
-                String.format("%1$-15s", balance) +
+                String.format("%1$-15s", balance + " " + currency) +
                 String.format("%1$-10s",isActive);
     }
 

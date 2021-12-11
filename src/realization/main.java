@@ -1,5 +1,6 @@
 package realization;
 
+import enums.Currency;
 import enums.PaymentType;
 import enums.Role;
 import models.*;
@@ -41,13 +42,16 @@ public class main {
                 1002_200_362211L,
                 1234,
                 0.0,
-                true);
+                Currency.UZS,
+                true
+                );
 
         Account userAccount = new Account(
                 2L,
                 1002_111_223344L,
                 1611,
                 0.0,
+                Currency.UZS,
                 true);
 
         User admin1 = new User(
@@ -130,7 +134,7 @@ public class main {
             for (String path : paths) {
                 testRead = new ArrayList<>();
                 questionsRead = new ArrayList<>();
-                Subject subject = new Subject(subjects.size()+1L, "", null, 0, 10000.0);
+                Subject subject = new Subject(subjects.size()+1L, "", null, 0, 10000.0, Currency.UZS);
                 System.out.println(path);
                 try {
                     fileReader = new BufferedReader(new FileReader(path));
@@ -144,78 +148,86 @@ public class main {
                     }
                     subject.setName(subjectName);
                     String line = fileReader.readLine();
-                    Long numTests = subject.getTestList() == null ? 1L : (subject.getTestList().size()+1L);
-                    Test test01 = new Test(numTests, null, 0, 0);
-                    int testCounter = 1;
-                    Long numQuestions = test01.getQuestions() == null? 1L : (test01.getQuestions().size()+1L);
-
-                    Question question01 = new Question(numQuestions, "", null, 0);
-                    Answer currAnswer = new Answer(1L, null, false);
-                    Set<Answer> answer_list = new LinkedHashSet<>();
-                    String questionStr = "", answerStr = "";
-                    Long questionId = 1L, answerId = 1L;
-                    int idIndex = -1, score = 0, scoreForTest = 0;
-                    while (line != null) {
-                        //System.out.println(line);
-                        if (line.startsWith("Test")) {
-                            idIndex = line.indexOf(" ") + 1;
-                            Long id = Long.parseLong(line.substring(idIndex).trim());
-                            if (testCounter < id) {
-                                test01.setTotalPoints(scoreForTest);
-                                test01.setQuestions(questionsRead);
-                                test01.setUserPoints(0);
-                                testRead.add(test01);
-                                test01 = new Test(testRead.size() + 1L, null, 0, 0);
-                                testCounter++;
-                            }
-                            test01.setId(id);
-                        }
-                        if (line.startsWith("Question")) {
-                            idIndex = line.indexOf(" ");
-                            questionId = Long.parseLong(line.substring(idIndex + 1, idIndex + 4));
-                            questionStr = line.substring(line.indexOf(".") + 1, line.indexOf("[")).trim();
-                            question01.setQuestionStr(questionStr);
-                            question01.setId(questionId);
-                            score = Integer.parseInt(line.substring(line.indexOf("[") + 1, line.indexOf("]")));
-                            question01.setScore(score);
-                            scoreForTest += score;
-                            totalPoints += score;
-                        } else if (line.startsWith("Answer")) {
-                            idIndex = line.indexOf(":");
-                            answerId = Long.parseLong(line.substring(idIndex - 1, idIndex));
-                            answerStr = line.substring(idIndex + 1).trim();
-                            currAnswer.setId(answerId);
-                            currAnswer.setAnswerStr(answerStr);
-
-                        } else if (line.length() == 1) {
-                            if (line.equals("y")) {
-                                currAnswer.setAsCorrect(true);
-                            } else {
-                                currAnswer.setAsCorrect(false);
-                            }
-                            answer_list.add(currAnswer);
-                            currAnswer = new Answer(answer_list.size() + 1L, "", false);
-                            if (answer_list.size() == 3) {
-                                question01.setAnswers(answer_list);
-                                questionsRead.add(question01);
-                                answer_list = new LinkedHashSet<>();
-                                question01 = new Question(questionsRead.size() + 1L, null, null, null);
-                            }
-                        }
-
+                    boolean priceTagReceived = getTestPrice(line, subject);
+                    if(priceTagReceived) {
                         line = fileReader.readLine();
+                        Long numTests = subject.getTestList() == null ? 1L : (subject.getTestList().size() + 1L);
+                        Test test01 = new Test(numTests, null, 0, 0);
+                        int testCounter = 1;
+                        Long numQuestions = test01.getQuestions() == null ? 1L : (test01.getQuestions().size() + 1L);
 
+                        Question question01 = new Question(numQuestions, "", null, 0);
+                        Answer currAnswer = new Answer(1L, null, false);
+                        Set<Answer> answer_list = new LinkedHashSet<>();
+                        String questionStr = "", answerStr = "";
+                        Long questionId = 1L, answerId = 1L;
+                        int idIndex = -1, score = 0, scoreForTest = 0;
+                        while (line != null) {
+                            //System.out.println(line);
+                            if (line.startsWith("Test")) {
+                                idIndex = line.indexOf(" ") + 1;
+                                Long id = Long.parseLong(line.substring(idIndex).trim());
+                                if (testCounter < id) {
+                                    test01.setTotalPoints(scoreForTest);
+                                    test01.setQuestions(questionsRead);
+                                    test01.setUserPoints(0);
+                                    testRead.add(test01);
+                                    test01 = new Test(testRead.size() + 1L, null, 0, 0);
+                                    testCounter++;
+                                }
+                                test01.setId(id);
+                            }
+                            if (line.startsWith("Question")) {
+                                idIndex = line.indexOf(" ");
+                                questionId = Long.parseLong(line.substring(idIndex + 1, idIndex + 4));
+                                questionStr = line.substring(line.indexOf(".") + 1, line.indexOf("[")).trim();
+                                question01.setQuestionStr(questionStr);
+                                question01.setId(questionId);
+                                score = Integer.parseInt(line.substring(line.indexOf("[") + 1, line.indexOf("]")));
+                                question01.setScore(score);
+                                scoreForTest += score;
+                                totalPoints += score;
+                            } else if (line.startsWith("Answer")) {
+                                idIndex = line.indexOf(":");
+                                answerId = Long.parseLong(line.substring(idIndex - 1, idIndex));
+                                answerStr = line.substring(idIndex + 1).trim();
+                                currAnswer.setId(answerId);
+                                currAnswer.setAnswerStr(answerStr);
+
+                            } else if (line.length() == 1) {
+                                if (line.equals("y")) {
+                                    currAnswer.setAsCorrect(true);
+                                } else {
+                                    currAnswer.setAsCorrect(false);
+                                }
+                                answer_list.add(currAnswer);
+                                currAnswer = new Answer(answer_list.size() + 1L, "", false);
+                                if (answer_list.size() == 3) {
+                                    question01.setAnswers(answer_list);
+                                    questionsRead.add(question01);
+                                    answer_list = new LinkedHashSet<>();
+                                    question01 = new Question(questionsRead.size() + 1L, null, null, null);
+                                }
+                            }
+
+                            line = fileReader.readLine();
+
+                        }
+                        test01.setTotalPoints(scoreForTest);
+                        test01.setQuestions(questionsRead);
+                        test01.setUserPoints(0);
+
+                        testRead.add(test01);
+                        subject.setTestList(testRead);
+                        subject.setTotalPoints(totalPoints);
+                        subjects.add(subject);
+                        int testCount = testRead.size();
+                        String outputMsg = testCount == 1 ? (testCount + " test has") : (testCount + " tests have"); //has been added"
+                        outputMsg = outputMsg.concat(" been added successfully. \nSubject name: " + subjectName+ "\nTest price: " + subject.getPrice() + " "+subject.getCurrency());
+                        System.out.println(outputMsg);
                     }
-                    test01.setTotalPoints(scoreForTest);
-                    test01.setQuestions(questionsRead);
-                    test01.setUserPoints(0);
-
-                    testRead.add(test01);
-                    subject.setTestList(testRead);
-                    subject.setTotalPoints(totalPoints);
-                    subjects.add(subject);
-                    System.out.println(testRead.size() + " test(s) in " + subjectName + " added");
                     fileReader.close();
+
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -224,6 +236,31 @@ public class main {
             }
         }
 
+    }
+
+    private static Boolean getTestPrice(String line, Subject subject) {
+        try {
+            String[] pricetag = line.split(" ");
+            if(subject != null){
+                subject.setPrice(Double.parseDouble(pricetag[0]));
+                if(pricetag[1].equals(Currency.UZS.toString())){
+                    subject.setCurrency(Currency.UZS);
+                }else if(pricetag[1].equals(Currency.USD.toString())){
+                    subject.setCurrency(Currency.USD);
+                }else if(pricetag[1].equals(Currency.KRW.toString())){
+                    subject.setCurrency(Currency.KRW);
+                }else if(pricetag[1].equals(Currency.RUB.toString())){
+                    subject.setCurrency(Currency.RUB);
+                }else {
+                    System.out.println("Wrong currency tag! Default currency tag UZS will be applied.");
+                    subject.setCurrency(Currency.UZS);
+                }
+                return true;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /**
@@ -241,7 +278,6 @@ public class main {
             boolean isSuccess = false;
             try {
                 choice = scanner.nextInt();
-
                 switch (choice) {
                     case 1:
                         registrationService.signUp();
@@ -255,8 +291,8 @@ public class main {
                         System.out.println("Not Implemented Yet!");
                 }
 
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (InputMismatchException e) {
+                System.out.println("Input mismatch! Please, enter correct type of input data.");
             }
         }
         if(currentUser.getSignedIn()){
@@ -466,7 +502,6 @@ public class main {
      */
     private static void applicantMenu(){
         User applicant = main.currentUser;
-        // TODO: 12/4/21 applicant panel
         scanner = new Scanner(System.in);
         int choice = -1;
         while (applicant.getSignedIn()){
@@ -516,9 +551,7 @@ public class main {
                                             testHistory.setSubject(subject.getName());
                                             int totalForAllTests = 0;
                                             for (Test test : tests) {
-                                                if (testHistory != null) {
-                                                    testHistory.setTest(test);
-                                                }
+                                                testHistory.setTest(test);
                                                 boolean quitTest = false;
                                                 int totalForTest = 0;
                                                 for (Question question : test.getQuestions()) {
@@ -668,7 +701,6 @@ public class main {
      */
     private static Subject selectSubject() {
         scanner = new Scanner(System.in);
-        // TODO: 12/7/2021 Add logic for select subject and return the selected subject id
         int counter = 3;
         while (counter-- > 0) {
             System.out.print("Subject id: ");

@@ -1,5 +1,6 @@
 package services.serviceImpl;
 
+import enums.Currency;
 import enums.PaymentType;
 import models.*;
 import realization.main;
@@ -9,7 +10,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 public class paymentServiceImpl implements paymentService {
-    private Scanner scanner;
+    private static Scanner scanner;
     @Override
     public PaymentType addPaymentMethod() {
         PaymentType paymentType = null;
@@ -152,6 +153,43 @@ public class paymentServiceImpl implements paymentService {
             }
         }
         return activeMethods;
+    }
+
+
+    public static enums.Currency getCurrencyTag() {
+        int counterWhileLoop = 3;
+        while (counterWhileLoop-- > 0) {
+            scanner = new Scanner(System.in);
+            enums.Currency currency = null;
+            int counter = 1;
+            for (enums.Currency currencyVal : enums.Currency.values()) {
+                System.out.println(counter++ + ". " + currencyVal);
+            }
+            System.out.print("Choose currency: ");
+            int currencyChosen = -1;
+            currencyChosen = scanner.nextInt();
+            switch (currencyChosen) {
+                case 1:
+                    currency = enums.Currency.UZS;
+                    break;
+                case 2:
+                    currency = enums.Currency.USD;
+                    break;
+                case 3:
+                    currency = enums.Currency.KRW;
+                    break;
+                case 4:
+                    currency = Currency.RUB;
+                    break;
+                default:
+                    System.out.println("Wrong input! Please, try again.");
+                    break;
+            }
+            if(currency != null){
+                return currency;
+            }
+        }
+        return null;
     }
 
     @Override

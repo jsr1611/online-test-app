@@ -1,5 +1,6 @@
 package services.serviceImpl;
 
+import enums.Currency;
 import enums.Role;
 import javafx.animation.ScaleTransition;
 import models.Account;
@@ -96,6 +97,7 @@ public class registrationImpl implements registration {
                     e.printStackTrace();
                 }
             }
+            Currency currency = paymentServiceImpl.getCurrencyTag();
 
             Integer accountPassword = null;
             while (accountPassword == null){
@@ -116,7 +118,7 @@ public class registrationImpl implements registration {
                     main.users.size()+1L,
                     accountNumber,
                     accountPassword,
-                    0.0,
+                    0.0, currency,
                     true);
             User user = new User(
                     main.users.size()+1L,
